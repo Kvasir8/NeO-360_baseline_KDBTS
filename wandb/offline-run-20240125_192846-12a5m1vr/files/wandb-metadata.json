@@ -1,0 +1,109 @@
+{
+    "os": "Linux-6.2.0-36-generic-x86_64-with-debian-bookworm-sid",
+    "python": "3.7.16",
+    "heartbeatAt": "2024-01-25T18:28:47.514479",
+    "startedAt": "2024-01-25T18:28:46.957865",
+    "docker": null,
+    "cuda": null,
+    "args": [
+        "--dataset_name",
+        "nerds360_ae",
+        "--root_dir",
+        "/storage/group/dataset_mirrors/01_incoming/kitti_360/KITTI-360",
+        "--exp_type",
+        "triplanar_nocs_fusion_conv_scene",
+        "--exp_name",
+        "multi_map_tp_CONV_scene",
+        "--encoder_type",
+        "resnet",
+        "--batch_size",
+        "1",
+        "--img_wh",
+        "640 192",
+        "--num_gpus",
+        "1"
+    ],
+    "state": "running",
+    "program": "run.py",
+    "codePathLocal": "run.py",
+    "codePath": "run.py",
+    "git": {
+        "remote": "https://github.com/zubair-irshad/NeO-360.git",
+        "commit": "fe173b14d6adc2a195a9a6c5c8bb678c7e6eae72"
+    },
+    "email": "ge96tir@tum.de",
+    "root": "/storage/user/hank/methods_test/NeO-360",
+    "host": "atcremers85",
+    "username": "hank",
+    "executable": "/storage/user/hank/miniconda3/envs/neo360/bin/python",
+    "cpu_count": 4,
+    "cpu_count_logical": 8,
+    "cpu_freq": {
+        "current": 1199.9465,
+        "min": 1200.0,
+        "max": 3900.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 1200.002,
+            "min": 1200.0,
+            "max": 3900.0
+        },
+        {
+            "current": 1200.07,
+            "min": 1200.0,
+            "max": 3900.0
+        },
+        {
+            "current": 1199.932,
+            "min": 1200.0,
+            "max": 3900.0
+        },
+        {
+            "current": 1200.0,
+            "min": 1200.0,
+            "max": 3900.0
+        },
+        {
+            "current": 1199.602,
+            "min": 1200.0,
+            "max": 3900.0
+        },
+        {
+            "current": 1199.767,
+            "min": 1200.0,
+            "max": 3900.0
+        },
+        {
+            "current": 1199.862,
+            "min": 1200.0,
+            "max": 3900.0
+        },
+        {
+            "current": 1200.178,
+            "min": 1200.0,
+            "max": 3900.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 58.75761032104492,
+            "used": 24.907562255859375
+        }
+    },
+    "gpu": "Quadro P400",
+    "gpu_count": 2,
+    "gpu_devices": [
+        {
+            "name": "Quadro P400",
+            "memory_total": 2147483648
+        },
+        {
+            "name": "Quadro RTX 5000",
+            "memory_total": 17179869184
+        }
+    ],
+    "memory": {
+        "total": 30.95877456665039
+    }
+}

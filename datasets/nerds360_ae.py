@@ -149,7 +149,7 @@ def read_poses(pose_dir_train, img_files_train, output_boxes=False, contract=Tru
         all_c2w_train.append(convert_pose_PD_to_NeRF(c2w))
 
     all_c2w_train = np.array(all_c2w_train)
-    pose_scale_factor = 1.0 / np.max(np.abs(all_c2w_train[:, :3, 3]))
+    pose_scale_factor = 1.0 / np.max(np.abs(all_c2w_train[:, :3, 3]))   ## why do we need "pose_scale_factor"? : to scale the pose to the same scale as the 3D model
 
     all_c2w_train[:, :3, 3] *= pose_scale_factor
 
@@ -188,7 +188,7 @@ def read_poses(pose_dir_train, img_files_train, output_boxes=False, contract=Tru
                 all_translations.append(translation)
         # Old scenes uncomment here
         RTs = {"R": all_rotations, "T": all_translations, "s": all_boxes}
-        return all_c2w_train, all_c2w_val, focal, img_wh, RTs, pose_scale_factor
+        return all_c2w_train, all_c2w_val, focal, img_wh, RTs, pose_scale_factor    ### len(RTs['R'][0][0]) == 3
     else:
         return all_c2w_train, all_c2w_val, focal, img_wh, pose_scale_factor
 
@@ -355,7 +355,7 @@ class NeRDS360_AE(Dataset):
             c2w_near = c2w_near[:3, :4]
 
         pose = torch.FloatTensor(c2w)
-        c2w = torch.FloatTensor(c2w)[:3, :4]
+        c2w = torch.FloatTensor(c2w)[:3, :4]        ## data redundancy
         img = Image.open(os.path.join(base_dir, "rgb", img_name))
         img = img.resize((w, h), Image.LANCZOS)
 

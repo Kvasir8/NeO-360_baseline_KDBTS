@@ -14,10 +14,7 @@ def get_opts():
         "--dataset_name",
         type=str,
         default="blender",
-        choices=[
-            "nerds360",
-            "nerds360_ae"
-        ],
+        choices=["nerds360", "nerds360_ae", "nerds360_ae_custom", "kitti360"],  ##
         help="which dataset to train/val",
     )
     parser.add_argument(
@@ -27,7 +24,8 @@ def get_opts():
         "--img_wh",
         nargs="+",
         type=int,
-        default=[640, 480],
+        default=[640, 192],
+        # default=[640, 480],
         help="resolution (img_w, img_h) of the image",
     )
     parser.add_argument(

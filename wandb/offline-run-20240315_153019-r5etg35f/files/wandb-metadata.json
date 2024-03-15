@@ -1,0 +1,107 @@
+{
+    "os": "Linux-6.5.0-25-generic-x86_64-with-debian-bookworm-sid",
+    "python": "3.7.16",
+    "heartbeatAt": "2024-03-15T14:30:19.482927",
+    "startedAt": "2024-03-15T14:30:19.201446",
+    "docker": null,
+    "cuda": null,
+    "args": [
+        "--dataset_name",
+        "kitti360",
+        "--root_dir",
+        "/usr/stud/hank/storage/user/methods_test/NeO-360/data/PDMultiObjv6/train",
+        "--exp_type",
+        "triplanar_nocs_fusion_conv_scene",
+        "--exp_name",
+        "multi_map_tp_CONV_scene",
+        "--encoder_type",
+        "resnet",
+        "--batch_size",
+        "1",
+        "--num_gpus",
+        "1"
+    ],
+    "state": "running",
+    "program": "run.py",
+    "codePathLocal": "run.py",
+    "codePath": "run.py",
+    "git": {
+        "remote": "https://github.com/zubair-irshad/NeO-360.git",
+        "commit": "fe173b14d6adc2a195a9a6c5c8bb678c7e6eae72"
+    },
+    "email": "ge96tir@tum.de",
+    "root": "/storage/user/hank/methods_test/NeO-360",
+    "host": "atcremers85",
+    "username": "hank",
+    "executable": "/usr/stud/hank/storage/user/miniconda3/envs/neo360/bin/python",
+    "cpu_count": 4,
+    "cpu_count_logical": 8,
+    "cpu_freq": {
+        "current": 1200.106,
+        "min": 1200.0,
+        "max": 3900.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 1199.623,
+            "min": 1200.0,
+            "max": 3900.0
+        },
+        {
+            "current": 1199.478,
+            "min": 1200.0,
+            "max": 3900.0
+        },
+        {
+            "current": 1200.045,
+            "min": 1200.0,
+            "max": 3900.0
+        },
+        {
+            "current": 1200.341,
+            "min": 1200.0,
+            "max": 3900.0
+        },
+        {
+            "current": 1200.549,
+            "min": 1200.0,
+            "max": 3900.0
+        },
+        {
+            "current": 1200.545,
+            "min": 1200.0,
+            "max": 3900.0
+        },
+        {
+            "current": 1200.005,
+            "min": 1200.0,
+            "max": 3900.0
+        },
+        {
+            "current": 1199.702,
+            "min": 1200.0,
+            "max": 3900.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 58.75761032104492,
+            "used": 24.902130126953125
+        }
+    },
+    "gpu": "Quadro P400",
+    "gpu_count": 2,
+    "gpu_devices": [
+        {
+            "name": "Quadro P400",
+            "memory_total": 2147483648
+        },
+        {
+            "name": "Quadro RTX 5000",
+            "memory_total": 17179869184
+        }
+    ],
+    "memory": {
+        "total": 30.957988739013672
+    }
+}

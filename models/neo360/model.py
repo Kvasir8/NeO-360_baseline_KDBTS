@@ -133,7 +133,7 @@ class NeRFPPMLP(nn.Module):
                 x = combine_interleaved(x, combine_inner_dims, self.combine_type)
 
             if idx % self.skip_layer == 0 and idx > 0:
-                x = torch.cat([x, inputs], dim=-1)
+                 x = torch.cat([x, inputs], dim=-1)
 
         raw_density = self.density_layer(x).reshape(
             -1, num_samples, self.num_density_channels
@@ -634,6 +634,7 @@ class LitNeRFTP_FUSION_CONV_SCENE(LitModel):
 
         if (self.hparams.dataset_name == "nerds360"
             or self.hparams.dataset_name == "nerds360_ae"
+            or self.hparams.dataset_name == "nerds360_ae_custom"    ##
         ):
             kwargs_train = {
                 "root_dir": self.hparams.root_dir,
@@ -646,6 +647,51 @@ class LitNeRFTP_FUSION_CONV_SCENE(LitModel):
                 "finetune_lpips": self.hparams.finetune_lpips,
             }
             kwargs_val = {
+                "root_dir": self.hparams.root_dir,
+                "img_wh": tuple(self.hparams.img_wh),
+                "white_back": self.hparams.white_back,
+                "model_type": "nerfpp",
+                "optimize": self.hparams.is_optimize,
+                "encoder_type": self.hparams.encoder_type,
+                "contract": False,
+                "finetune_lpips": self.hparams.finetune_lpips,
+            }
+        elif self.hparams.dataset_name == "kitti360":              ## make_datasets in data_utils.py
+            kwargs_train = {
+                ## kitti360_DFT
+                "data_path": "/storage/group/dataset_mirrors/01_incoming/kitti_360/KITTI-360",           # storage/group/dataset_mirrors/01_incoming/kitti_360/KITTI-360
+                "pose_path": "/storage/group/dataset_mirrors/01_incoming/kitti_360/KITTI-360/data_poses",
+                "split_path": "/storage/user/hank/BehindTheScenes/datasets/kitti_360/splits/seg/train_files.txt",   ## | val_files.txt, hardcoded from data_utils.py
+                "target_image_size": [ 192, 640 ],
+                "return_stereo": True,
+                "frame_count": 2,
+                "fisheye_offset": [10], ## default: fisheye_offset: [10]
+                "stereo_offset": [1, 2, 3, 4, 5, 6, 7, 8], #  [1,2,3,4,5,6,7,8]  ## defaut: [1] time stamps
+                "is_preprocessed": False,
+                "return_fisheye": True,
+
+                "root_dir": self.hparams.root_dir,
+                "img_wh": tuple(self.hparams.img_wh),
+                "white_back": self.hparams.white_back,
+                "model_type": "nerfpp",
+                "optimize": self.hparams.is_optimize,
+                "encoder_type": self.hparams.encoder_type,
+                "contract": False,
+                "finetune_lpips": self.hparams.finetune_lpips,
+            }
+            kwargs_val = {
+                ## kitti360_DFT
+                "data_path": "/storage/group/dataset_mirrors/01_incoming/kitti_360/KITTI-360",           # storage/group/dataset_mirrors/01_incoming/kitti_360/KITTI-360
+                "pose_path": "/storage/group/dataset_mirrors/01_incoming/kitti_360/KITTI-360/data_poses",
+                "split_path": "/storage/user/hank/BehindTheScenes/datasets/kitti_360/splits/seg/train_files.txt",   ## | val_files.txt, hardcoded from data_utils.py
+                "target_image_size": [ 192, 640 ],
+                "return_stereo": True,
+                "frame_count": 2,
+                "fisheye_offset": [10], ## default: fisheye_offset: [10]
+                "stereo_offset": [1, 2, 3, 4, 5, 6, 7, 8], #  [1,2,3,4,5,6,7,8]  ## defaut: [1] time stamps
+                "is_preprocessed": False,
+                "return_fisheye": True,
+
                 "root_dir": self.hparams.root_dir,
                 "img_wh": tuple(self.hparams.img_wh),
                 "white_back": self.hparams.white_back,
@@ -922,7 +968,21 @@ class LitNeRFTP_FUSION_CONV_SCENE(LitModel):
 
     def validation_step(self, batch, batch_idx):
         for k, v in batch.items():
-            batch[k] = v.squeeze(0)
+            """
+            src_imgs
+            src_poses
+            src_focal
+            src_c
+            rays_o
+            rays_d
+            viewdirs
+            target
+            radii
+            multloss
+            normals
+            """
+            # batch[k] = v.squeeze(0)
+            batch[k] = [v[i] for i in range(v.shape[0])]
             if k == "radii":
                 batch[k] = v.unsqueeze(-1)
             if k == "near_obj" or k == "far_obj":

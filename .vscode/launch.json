@@ -1,0 +1,57 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "gen_train:run.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "run.py",
+            "args": [
+                "--dataset_name", "kitti360",
+                // "--dataset_name", "nerds360_ae_custom", 
+                // "--root_dir", "/usr/stud/hank/storage/user/methods_test/NeO-360/data/PD_v6_test/test_novel_objs/SF_6thAndMission_medium0/",
+                "--root_dir", "/usr/stud/hank/storage/user/methods_test/NeO-360/data/PDMultiObjv6/train",
+                // "--root_dir", "/storage/group/dataset_mirrors/01_incoming/kitti_360/KITTI-360", 
+                "--exp_type", "triplanar_nocs_fusion_conv_scene", 
+                "--exp_name", "multi_map_tp_CONV_scene", 
+                "--encoder_type", "resnet", 
+                "--batch_size", "1",  
+                // "--img_wh", 640 192, 
+                "--num_gpus", "1"            
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}../../miniconda3/envs/neo360/lib/python3.10/site-packages/"
+            },
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+
+        {
+            "name": "train_BTS",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "run.py",
+            "args": [
+                "--dataset_name", "nerds360_ae", 
+                "--root_dir", "/usr/stud/hank/storage/user/data/test/PDMultiObjv6/train",
+                // "--root_dir", "/storage/group/dataset_mirrors/01_incoming/kitti_360/KITTI-360", 
+                "--exp_type", "triplanar_nocs_fusion_conv_scene", 
+                "--exp_name", "multi_map_tp_CONV_scene", 
+                "--encoder_type", "resnet", 
+                "--batch_size", "1",  
+                // "--img_wh", 640 192, 
+                "--num_gpus", "1"            
+            ],
+            // "cwd": "${workspaceFolder}",
+            // "python": "${workspaceFolder}../../miniconda3/envs/bts_m/bin/python",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}../../miniconda3/envs/neo360/lib/python3.10/site-packages/"
+            },
+            "stopOnEntry": false,
+            "justMyCode": true
+        },
+    ]
+}

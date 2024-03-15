@@ -81,7 +81,7 @@ def openCV_to_OpenGL(C2W):
     return C2W
 
 
-def get_ray_directions(H, W, focal):
+def get_ray_directions(H, W, focal):    
     """
     Get ray directions for all pixels in camera coordinate.
     Reference: https://www.scratchapixel.com/lessons/3d-basic-rendering/
@@ -101,7 +101,7 @@ def get_ray_directions(H, W, focal):
         [(i - W / 2) / focal, -(j - H / 2) / focal, -torch.ones_like(i)], -1
     )  # (H, W, 3)
 
-    return directions
+    return directions   ## unnormalize the focal lengeth to get the ray directions in camera coordinate : e,g. -1 ~ 1 for kitti360
 
 
 def get_rays_background(directions, c2w, coords):
