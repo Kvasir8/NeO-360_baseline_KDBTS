@@ -1010,6 +1010,10 @@ class Kitti360Dataset(NeRDS360_AE_custom):
         # print(_loading_time, _processing_time, _proc_time)
 
 
+        src_imgs = torch.stack([self.Transform(i_) for i_ in imgs], 0)
+        imgs = torch.stack(imgs, 0)
+        poses = np.stack(poses, 0)
+
         if self.eval_inference is not None:
             instance_dir = self.ids[0]
         else:
@@ -1056,10 +1060,11 @@ class Kitti360Dataset(NeRDS360_AE_custom):
                 dest_view_num = random.sample(a, 1)[0] + NV
 
         focal = (projs[0][0, 0] + projs[0][1, 1]) / 2.0
+        focal = [focal for i in range(3)]   ## for 3 source views in neo360 pipeline
         src_c = np.array([projs[0][0, 2], projs[0][1, 2]])
 
         kwargs = {
-            "focal": focal,
+            "focal": focal,   
             "src_c": src_c,
             "c2w": poses,
         }
@@ -1107,9 +1112,8 @@ class Kitti360Dataset(NeRDS360_AE_custom):
         rays_d = cam_rays_d.view(-1, cam_rays_d.shape[-1])
         view_dirs = cam_view_dirs.view(-1, cam_view_dirs.shape[-1])
 
-
         sample = {
-            "src_imgs": [self.Transform(i_) for i_ in imgs],
+            "src_imgs": src_imgs,
             "src_poses": poses,  ## Check if world2cam or cam2world
             "src_focal": focal,
             "src_c": src_c,

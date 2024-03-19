@@ -11,14 +11,14 @@
             "program": "run.py",
             "args": [
                 "--dataset_name", "kitti360",
-                // "--dataset_name", "nerds360_ae_custom", 
+                // "--dataset_name", "nerds360_ae", 
                 // "--root_dir", "/usr/stud/hank/storage/user/methods_test/NeO-360/data/PD_v6_test/test_novel_objs/SF_6thAndMission_medium0/",
                 "--root_dir", "/usr/stud/hank/storage/user/methods_test/NeO-360/data/PDMultiObjv6/train",
                 // "--root_dir", "/storage/group/dataset_mirrors/01_incoming/kitti_360/KITTI-360", 
                 "--exp_type", "triplanar_nocs_fusion_conv_scene", 
                 "--exp_name", "multi_map_tp_CONV_scene", 
                 "--encoder_type", "resnet", 
-                "--batch_size", "1",  
+                "--batch_size", "100",  
                 // "--img_wh", 640 192, 
                 "--num_gpus", "1"            
             ],

@@ -392,7 +392,7 @@ class NeRDS360_AE_custom(Dataset):
         #         np.array(inst_seg), (w, h), interpolation=cv2.INTER_NEAREST
         #     )
 
-        directions = get_ray_directions(h, w, focal)  # (h, w, 3)
+        directions = get_ray_directions(h, w, focal[0])  # (h, w, 3)
         rays_o, view_dirs, rays_d, radii = get_rays(
             directions, c2w, output_view_dirs=True, output_radii=True
         )

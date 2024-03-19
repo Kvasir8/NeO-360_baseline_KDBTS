@@ -981,8 +981,11 @@ class LitNeRFTP_FUSION_CONV_SCENE(LitModel):
             multloss
             normals
             """
-            # batch[k] = v.squeeze(0)
-            batch[k] = [v[i] for i in range(v.shape[0])]
+            if k == "src_focal":   ## hard-coded
+                batch[k] = batch[k][0].expand(3)
+                continue
+            batch[k] = v.squeeze(0)     ### torch.Size([1, 3, 3, 192, 640])
+            # batch[k] = [v[i].squeeze(0) for i in range(len(v))][0]     ##
             if k == "radii":
                 batch[k] = v.unsqueeze(-1)
             if k == "near_obj" or k == "far_obj":
