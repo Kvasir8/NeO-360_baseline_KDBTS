@@ -1,0 +1,24 @@
+2024-03-20 19:05:44,231 INFO    MainThread:574086 [wandb_setup.py:_flush():76] Current SDK version is 0.16.2
+2024-03-20 19:05:44,231 INFO    MainThread:574086 [wandb_setup.py:_flush():76] Configure stats pid to 574086
+2024-03-20 19:05:44,232 INFO    MainThread:574086 [wandb_setup.py:_flush():76] Loading settings from /usr/stud/hank/.config/wandb/settings
+2024-03-20 19:05:44,232 INFO    MainThread:574086 [wandb_setup.py:_flush():76] Loading settings from /storage/user/hank/methods_test/NeO-360/wandb/settings
+2024-03-20 19:05:44,232 INFO    MainThread:574086 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2024-03-20 19:05:44,232 INFO    MainThread:574086 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'run.py', 'program_abspath': '/storage/user/hank/methods_test/NeO-360/run.py', 'program': 'run.py'}
+2024-03-20 19:05:44,232 INFO    MainThread:574086 [wandb_setup.py:_flush():76] Applying login settings: {'mode': 'offline'}
+2024-03-20 19:05:44,232 INFO    MainThread:574086 [wandb_init.py:_log_setup():526] Logging user logs to /storage/user/hank/methods_test/NeO-360/wandb/offline-run-20240320_190544-89et81ec/logs/debug.log
+2024-03-20 19:05:44,232 INFO    MainThread:574086 [wandb_init.py:_log_setup():527] Logging internal logs to /storage/user/hank/methods_test/NeO-360/wandb/offline-run-20240320_190544-89et81ec/logs/debug-internal.log
+2024-03-20 19:05:44,233 INFO    MainThread:574086 [wandb_init.py:init():566] calling init triggers
+2024-03-20 19:05:44,233 INFO    MainThread:574086 [wandb_init.py:init():574] wandb.init called with sweep_config: {}
+config: {}
+2024-03-20 19:05:44,233 INFO    MainThread:574086 [wandb_init.py:init():616] starting backend
+2024-03-20 19:05:44,233 INFO    MainThread:574086 [wandb_init.py:init():620] setting up manager
+2024-03-20 19:05:44,236 INFO    MainThread:574086 [backend.py:_multiprocessing_setup():107] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2024-03-20 19:05:44,327 INFO    MainThread:574086 [wandb_init.py:init():628] backend started and connected
+2024-03-20 19:05:44,332 INFO    MainThread:574086 [wandb_init.py:init():720] updated telemetry
+2024-03-20 19:05:44,351 INFO    MainThread:574086 [wandb_init.py:init():753] communicating run to backend with 90.0 second timeout
+2024-03-20 19:05:44,362 INFO    MainThread:574086 [wandb_init.py:init():804] starting run threads in backend
+2024-03-20 19:06:14,374 INFO    MainThread:574086 [wandb_run.py:_console_start():2233] atexit reg
+2024-03-20 19:06:14,374 INFO    MainThread:574086 [wandb_run.py:_redirect():2088] redirect: wrap_raw
+2024-03-20 19:06:14,375 INFO    MainThread:574086 [wandb_run.py:_redirect():2153] Wrapping output streams.
+2024-03-20 19:06:14,375 INFO    MainThread:574086 [wandb_run.py:_redirect():2178] Redirects installed.
+2024-03-20 19:06:14,376 INFO    MainThread:574086 [wandb_init.py:init():847] run started, returning control to user process

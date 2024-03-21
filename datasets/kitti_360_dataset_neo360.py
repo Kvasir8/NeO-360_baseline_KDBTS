@@ -21,7 +21,7 @@ from torchvision.transforms import ColorJitter
 # from .ray_utils import *
 # import random
 
-from datasets.nerds360_ae_custom import *
+# from datasets.nerds360_ae_custom import *
 
 # from datasets.kitti_360.annotation import KITTI360Bbox3D
 # from utils.augmentation import get_color_aug_fn
@@ -90,8 +90,8 @@ class FisheyeToPinholeSampler:
         return resampled_img
 
 
-# class Kitti360Dataset(Dataset):
-class Kitti360Dataset(NeRDS360_AE_custom):
+class Kitti360Dataset(Dataset):
+# class Kitti360Dataset(NeRDS360_AE_custom):
     def __init__(
         self,
         data_path: str,
@@ -100,7 +100,7 @@ class Kitti360Dataset(NeRDS360_AE_custom):
         target_image_size=(192, 640),
         return_stereo=False,
         return_depth=False,
-        return_fisheye=True,  ## default: True
+        return_fisheye=False,  ## default: True for inference
         return_3d_bboxes=False,
         return_segmentation=False,
         frame_count=2,
@@ -115,6 +115,10 @@ class Kitti360Dataset(NeRDS360_AE_custom):
         **kwargs,
     ):
         super().__init__(**kwargs)
+        self.split = kwargs.get("split", "train")
+        self.ray_batch_size = kwargs.get("ray_batch_size", 2048)
+        self.H, self.W = target_image_size
+
         self.data_path = data_path
         self.pose_path = pose_path
         self.split_path = split_path
@@ -445,6 +449,7 @@ class Kitti360Dataset(NeRDS360_AE_custom):
 
         # Calibration matrix is the same for both perspective cameras
         K = P_rect_00[:3, :3]
+        
         #### unnormalization for focal length and principal coordinates For generating view_dirs in neo360
         # # Normalize calibration
         # f_x = K[0, 0] / im_size_rect[1]
@@ -484,11 +489,6 @@ class Kitti360Dataset(NeRDS360_AE_custom):
         # fisheye_03_data["projection_parameters"]["v0"] = (
         #     fisheye_03_data["projection_parameters"]["v0"] / im_size_fish[0]
         # ) * 2.0 - 1.0
-
-        # Use same camera calibration as perspective cameras for resampling
-        # K_fisheye = np.eye(3, dtype=np.float32)
-        # K_fisheye[0, 0] = 2
-        # K_fisheye[1, 1] = 2
 
         K_fisheye = K
 
@@ -1014,148 +1014,123 @@ class Kitti360Dataset(NeRDS360_AE_custom):
         imgs = torch.stack(imgs, 0)
         poses = np.stack(poses, 0)
 
-        if self.eval_inference is not None:
-            instance_dir = self.ids[0]
-        else:
-            instance_dir = self.ids[index]
-        # instance_dir = self.ids[idx]
-        # imgs = list()
-        # poses = list()
-        # focals = list()
-        all_c = list()
-        NV = 8        ## default: 199
-        src_views = 3 ## same setting as MVBTS
-
-        if self.eval_inference is not None:
-            num = int(self.eval_inference[0])
-            if num == 3:
-                src_views_num = [0, 38, 44]
-                # src_views_num = [8, 91, 67]
-            elif num == 5:
-                src_views_num = [0, 38, 44, 94, 48]
-            elif num == 1:
-                src_views_num = [0]
-            dest_view_num = index + NV    ## defualt : + 100
-            # dest_view_num = src_views_num[idx]
-            # dest_view_num = 135
-
-        else:
-            if self.optimize is not None:
-                num = int(self.optimize[0])
-                if num == 3:
-                    src_views_num = [0, 38, 44]
-                elif num == 5:
-                    src_views_num = [0, 38, 44, 94, 48]
-                elif num == 1:
-                    src_views_num = [0]
-
-                dest_view_num = np.random.randint(0, NV-1) + NV   ## default: randint(0, 99) + 100
-            else:
-                src_views_num = np.random.choice(NV, src_views, replace=False)  ## default: 100, src_views
-                # src_views_num = [0, 38, 44]
-
-                # src_views_num = [8, 91, 67]
-                views = [i for i in range(0, NV-1)]
-                a = list(set(views) - set(src_views_num))
-                dest_view_num = random.sample(a, 1)[0] + NV
+        # all_c = list()
+        # NV = len(imgs)        ## default: 199
+        # src_views = 3 ## same setting as MVBTS
+        
+        pred_idx = torch.randint(0, len(imgs), (1,))    ## random target view index
 
         focal = (projs[0][0, 0] + projs[0][1, 1]) / 2.0
         focal = [focal for i in range(3)]   ## for 3 source views in neo360 pipeline
         src_c = np.array([projs[0][0, 2], projs[0][1, 2]])
+        img_gt = imgs[pred_idx]
 
         kwargs = {
             "focal": focal,   
             "src_c": src_c,
-            "c2w": poses,
+            "c2w": poses[pred_idx],
+            # "K": projs,
         }
 
-        # Load desitnation view data
-        (
-            cam_rays,
-            cam_view_dirs,
-            cam_rays_d,
-            # img_gt,
-            # instance_mask,
-            # inst_seg,
-            # nocs_2d,
-            camera_radii,
-            _,
-            _,
-            _,
-        ) = self.read_data(out_instance_seg=False, **kwargs) ## default: =True   ## TODO: adjust to kitti360
-        # ) = self.read_data(instance_dir, dest_view_num, out_instance_seg=False, **kwargs) ## default: =True   ## TODO: adjust to kitti360
-        # if instance_mask is not None:
-        #     instance_mask = T.ToTensor()(instance_mask)
-        # inst_seg = T.ToTensor()(inst_seg)
-        # if nocs_2d is not None:
-        #     nocs_2d = Image.fromarray(np.uint8(nocs_2d))
-        #     nocs_2d = T.ToTensor()(nocs_2d)
+        # target view data loading
+        rays, viewdirs, rays_d, radii, _, _, _ = self.read_data(kwargs)
 
-        # H, W, _ = np.array(img_gt).shape
-        camera_radii = torch.FloatTensor(camera_radii)
-        cam_rays = torch.FloatTensor(cam_rays)
-        cam_view_dirs = torch.FloatTensor(cam_view_dirs)
-        cam_rays_d = torch.FloatTensor(cam_rays_d)
+        img_gt = Image.fromarray(np.uint8(img_gt))
+        img_gt = T.ToTensor()(img_gt)
+        rgb_gt = img_gt.permute(1, 2, 0).flatten(0, 1)
 
-        # img_gt = Image.fromarray(np.uint8(img_gt))
-        # img_gt = T.ToTensor()(img_gt)
-        # rgbs = img_gt.permute(1, 2, 0).flatten(0, 1)
-        # if nocs_2d is not None:
-        #     nocs_2ds = nocs_2d.permute(1, 2, 0).flatten(0, 1)
-        # else: nocs_2ds = None
-        # if instance_mask is not None:
-        #     masks = instance_mask.permute(1, 2, 0).flatten(0, 1)
-        # else: masks = None
-        # inst_seg_masks = inst_seg.permute(1, 2, 0).flatten(0, 1)
-        radii = camera_radii.view(-1)
-        rays = cam_rays.view(-1, cam_rays.shape[-1])
-        rays_d = cam_rays_d.view(-1, cam_rays_d.shape[-1])
-        view_dirs = cam_view_dirs.view(-1, cam_view_dirs.shape[-1])
+        rays = rays.view(-1, rays.shape[-1])
+        viewdirs = viewdirs.view(-1, viewdirs.shape[-1])
+        rays_d = rays_d.view(-1, rays_d.shape[-1])
+    
+        pix_inds = torch.randint(0, self.H * self.W, (self.ray_batch_size,))
+        rgbs = rgbs.reshape(-1, 3)[pix_inds, ...]
+        radii = radii.reshape(-1, 1)[pix_inds]
+        rays = rays.reshape(-1, 3)[pix_inds]
+        rays_d = rays_d.reshape(-1, 3)[pix_inds]
+        view_dirs = view_dirs.reshape(-1, 3)[pix_inds]
 
-        sample = {
-            "src_imgs": src_imgs,
-            "src_poses": poses,  ## Check if world2cam or cam2world
-            "src_focal": focal,
-            "src_c": src_c,
+        sample = {}
+        sample["src_imgs"] = imgs
+        sample["src_poses"] = poses
+        sample["src_focal"] = focal
+        sample["src_c"] = src_c
+        sample["rays_o"] = rays
+        sample["rays_d"] = rays_d
+        sample["viewdirs"] = view_dirs
+        sample["target"] = rgbs
+        sample["radii"] = radii
 
-            "rays_o": rays,     ## TODO: adjust to kitti360
-            "rays_d": rays_d,
-            "viewdirs": view_dirs,
-            "target": imgs,
-            "radii": radii,
-
-            "multloss": torch.zeros((rays.shape[0], 1)),
-            "normals": torch.zeros_like(rays),
-        }
-        # # sample["src_imgs"] = self.Transform(imgs)
-        # sample["src_poses"] = poses
-        # sample["src_focal"] = focals
-        # sample["src_c"] = all_c
-        # # # sample["instance_mask"] = masks
-        # sample["rays_o"] = rays
-        # sample["rays_d"] = rays_d
-        # sample["viewdirs"] = view_dirs
-        # # sample["target"] = imgs
-        # # # sample["nocs_2d"] = nocs_2ds
-        # sample["radii"] = radii
-        # sample["multloss"] = torch.zeros((sample["rays_o"].shape[0], 1))
-        # sample["normals"] = torch.zeros_like(sample["rays_o"])
-
-        # data = {
-        #     "imgs": imgs,
-        #     "projs": projs,
-        #     "poses": poses,
-        #     "depths": depths,
-        #     "ts": ids,
-        #     "3d_bboxes": bboxes_3d,
-        #     "segs": segs,
-        #     "t__get_item__": np.array([_proc_time]),
-        #     "index": np.array([index]),
-        # }
-
-        # return data
         return sample
+        # # Load desitnation view data
+        # (
+        #     cam_rays,
+        #     cam_view_dirs,
+        #     cam_rays_d,
+        #     # img_gt,
+        #     # instance_mask,
+        #     # inst_seg,
+        #     # nocs_2d,
+        #     camera_radii,
+        #     _,
+        #     _,
+        #     _,
+        # ) = self.read_data(out_instance_seg=False, **kwargs) ## default: =True   ## TODO: adjust to kitti360
+
+        # camera_radii = torch.FloatTensor(camera_radii)
+        # cam_rays = torch.FloatTensor(cam_rays)
+        # cam_view_dirs = torch.FloatTensor(cam_view_dirs)
+        # cam_rays_d = torch.FloatTensor(cam_rays_d)
+
+        # radii = camera_radii.view(-1)
+        # rays = cam_rays.view(-1, cam_rays.shape[-1])
+        # rays_d = cam_rays_d.view(-1, cam_rays_d.shape[-1])
+        # view_dirs = cam_view_dirs.view(-1, cam_view_dirs.shape[-1])
+
+        # sample = {
+        #     "src_imgs": src_imgs,
+        #     "src_poses": poses,  ## Check if world2cam or cam2world
+        #     "src_focal": focal,
+        #     "src_c": src_c,
+
+        #     "rays_o": rays,     ## TODO: adjust to kitti360
+        #     "rays_d": rays_d,
+        #     "viewdirs": view_dirs,
+        #     "target": imgs,
+        #     "radii": radii,
+
+        #     "multloss": torch.zeros((rays.shape[0], 1)),
+        #     "normals": torch.zeros_like(rays),
+        # }
+        # return sample
 
     def __len__(self) -> int:
-        # return 80
+        # return 80     ## overfitting
         return self.length
+
+
+    def read_data(self, **kwargs):
+        focal = kwargs["focal"]
+        c2w = kwargs["c2w"]
+        c = kwargs["src_c"]
+        # c = np.array([self.W / 2.0, self.H / 2.0])    ## 640 192
+        # c = np.array([self.K[0][2], self.K[1][2]])
+        pose = torch.FloatTensor(c2w)
+        c2w = torch.FloatTensor(c2w)[:3, :4]        ## data redundancy
+        directions = get_ray_directions(self.H, self.W, focal[0])  # (h, w, 3)
+        rays_o, view_dirs, rays_d, radii = get_rays(
+            directions, c2w, output_view_dirs=True, output_radii=True
+        )
+
+        # img = img.resize((self.W, self.H), Image.LANCZOS)
+
+        return (
+            rays_o,
+            view_dirs,
+            rays_d,
+            radii,
+            # img,
+            pose,
+            torch.tensor(focal, dtype=torch.float32),
+            torch.tensor(c, dtype=torch.float32),
+        )

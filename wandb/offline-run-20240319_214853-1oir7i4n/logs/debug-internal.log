@@ -1,0 +1,103 @@
+2024-03-19 21:48:54,063 INFO    StreamThr :3699679 [internal.py:wandb_internal():89] W&B internal server running at pid: 3699679, started at: 2024-03-19 21:48:54.029986
+2024-03-19 21:48:54,067 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status
+2024-03-19 21:48:54,079 INFO    WriterThread:3699679 [datastore.py:open_for_write():87] open: /storage/user/hank/methods_test/NeO-360/wandb/offline-run-20240319_214853-1oir7i4n/run-1oir7i4n.wandb
+2024-03-19 21:48:54,254 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: run_start
+2024-03-19 21:48:54,264 DEBUG   HandlerThread:3699679 [system_info.py:__init__():27] System info init
+2024-03-19 21:48:54,264 DEBUG   HandlerThread:3699679 [system_info.py:__init__():42] System info init done
+2024-03-19 21:48:54,264 INFO    HandlerThread:3699679 [system_monitor.py:start():194] Starting system monitor
+2024-03-19 21:48:54,279 INFO    SystemMonitor:3699679 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-03-19 21:48:54,279 INFO    HandlerThread:3699679 [system_monitor.py:probe():214] Collecting system info
+2024-03-19 21:48:54,284 INFO    SystemMonitor:3699679 [interfaces.py:start():190] Started cpu monitoring
+2024-03-19 21:48:54,295 INFO    SystemMonitor:3699679 [interfaces.py:start():190] Started disk monitoring
+2024-03-19 21:48:54,299 INFO    SystemMonitor:3699679 [interfaces.py:start():190] Started gpu monitoring
+2024-03-19 21:48:54,303 INFO    SystemMonitor:3699679 [interfaces.py:start():190] Started memory monitoring
+2024-03-19 21:48:54,309 INFO    SystemMonitor:3699679 [interfaces.py:start():190] Started network monitoring
+2024-03-19 21:48:54,310 DEBUG   HandlerThread:3699679 [system_info.py:probe():151] Probing system
+2024-03-19 21:48:54,322 DEBUG   HandlerThread:3699679 [system_info.py:_probe_git():136] Probing git
+2024-03-19 21:48:54,484 DEBUG   HandlerThread:3699679 [system_info.py:_probe_git():144] Probing git done
+2024-03-19 21:48:54,484 DEBUG   HandlerThread:3699679 [system_info.py:probe():199] Probing system done
+2024-03-19 21:48:54,484 DEBUG   HandlerThread:3699679 [system_monitor.py:probe():223] {'os': 'Linux-5.15.0-97-generic-x86_64-with-debian-bookworm-sid', 'python': '3.7.16', 'heartbeatAt': '2024-03-19T20:48:54.310341', 'startedAt': '2024-03-19T20:48:53.830306', 'docker': None, 'cuda': None, 'args': ('--dataset_name', 'kitti360', '--root_dir', '/usr/stud/hank/storage/user/methods_test/NeO-360/data/PDMultiObjv6/train', '--exp_type', 'triplanar_nocs_fusion_conv_scene', '--exp_name', 'multi_map_tp_CONV_scene', '--encoder_type', 'resnet', '--batch_size', '100', '--num_gpus', '1'), 'state': 'running', 'program': 'run.py', 'codePathLocal': 'run.py', 'codePath': 'run.py', 'git': {'remote': 'https://github.com/Kvasir8/NeO-360_baseline_KDBTS.git', 'commit': 'd0d07e31af7f6aa164f3ec13281bb1a400435a3c'}, 'email': 'ge96tir@tum.de', 'root': '/storage/user/hank/methods_test/NeO-360', 'host': 'node12', 'username': 'hank', 'executable': '/storage/user/hank/miniconda3/envs/neo360/bin/python', 'cpu_count': 36, 'cpu_count_logical': 36, 'cpu_freq': {'current': 3959.8497500000003, 'min': 1200.0, 'max': 4000.0}, 'cpu_freq_per_core': [{'current': 3752.277, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 3504.594, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 3898.611, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 3900.002, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 3881.694, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 3900.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 3917.602, 'min': 1200.0, 'max': 4000.0}, {'current': 3752.284, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}, {'current': 4000.0, 'min': 1200.0, 'max': 4000.0}], 'disk': {'/': {'total': 755.272403717041, 'used': 3.8759422302246094}}, 'gpu': 'Quadro RTX 8000', 'gpu_count': 1, 'gpu_devices': [{'name': 'Quadro RTX 8000', 'memory_total': 51539607552}], 'memory': {'total': 1510.5448112487793}}
+2024-03-19 21:48:54,484 INFO    HandlerThread:3699679 [system_monitor.py:probe():224] Finished collecting system info
+2024-03-19 21:48:54,487 INFO    HandlerThread:3699679 [system_monitor.py:probe():227] Publishing system info
+2024-03-19 21:48:54,492 DEBUG   HandlerThread:3699679 [system_info.py:_save_conda():209] Saving list of conda packages installed into the current environment
+2024-03-19 21:49:09,608 DEBUG   HandlerThread:3699679 [system_info.py:_save_conda():220] Saving conda packages done
+2024-03-19 21:49:09,637 INFO    HandlerThread:3699679 [system_monitor.py:probe():229] Finished publishing system info
+2024-03-19 21:49:09,694 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:49:09,694 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: keepalive
+2024-03-19 21:49:09,695 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:49:09,695 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:49:09,697 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: keepalive
+2024-03-19 21:49:09,697 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:49:09,697 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:49:09,698 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: keepalive
+2024-03-19 21:49:09,698 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: python_packages
+2024-03-19 21:49:09,698 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:49:14,700 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:49:14,700 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:49:19,705 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:49:19,706 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:49:24,712 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:49:24,713 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:49:29,714 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:49:29,714 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:49:34,715 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:49:34,716 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:49:39,723 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:49:39,723 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:49:44,725 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:49:44,725 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:49:49,735 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:49:49,736 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:49:54,309 DEBUG   SystemMonitor:3699679 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-03-19 21:49:54,741 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:49:54,742 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:49:59,745 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:49:59,746 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:50:04,750 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:50:04,750 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:50:09,755 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:50:09,755 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:50:14,757 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:50:14,758 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:50:19,763 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:50:19,763 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:50:24,765 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:50:24,765 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:50:29,766 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:50:29,767 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:50:34,772 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:50:34,772 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:50:39,776 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:50:39,776 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:50:44,777 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:50:44,778 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:50:49,779 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:50:49,779 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:50:54,782 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:50:54,782 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:50:59,816 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:50:59,817 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:51:04,827 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:51:04,827 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:51:09,832 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:51:09,832 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:51:14,837 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:51:14,837 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:51:19,839 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:51:19,839 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:51:24,842 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:51:24,843 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:51:29,848 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:51:29,849 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:51:34,861 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:51:34,861 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:51:39,863 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:51:39,864 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:51:44,867 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:51:44,867 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:51:49,873 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:51:49,874 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:51:54,881 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:51:54,882 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report
+2024-03-19 21:51:59,887 DEBUG   HandlerThread:3699679 [handler.py:handle_request():146] handle_request: status_report
+2024-03-19 21:51:59,888 DEBUG   SenderThread:3699679 [sender.py:send_request():409] send_request: status_report

@@ -1,0 +1,25 @@
+2024-03-19 22:11:35,988 INFO    MainThread:3734076 [wandb_setup.py:_flush():76] Current SDK version is 0.16.2
+2024-03-19 22:11:35,988 INFO    MainThread:3734076 [wandb_setup.py:_flush():76] Configure stats pid to 3734076
+2024-03-19 22:11:35,988 INFO    MainThread:3734076 [wandb_setup.py:_flush():76] Loading settings from /usr/stud/hank/.config/wandb/settings
+2024-03-19 22:11:36,020 INFO    MainThread:3734076 [wandb_setup.py:_flush():76] Loading settings from /storage/user/hank/methods_test/NeO-360/wandb/settings
+2024-03-19 22:11:36,042 INFO    MainThread:3734076 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2024-03-19 22:11:36,062 INFO    MainThread:3734076 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'run.py', 'program_abspath': '/storage/user/hank/methods_test/NeO-360/run.py', 'program': 'run.py'}
+2024-03-19 22:11:36,069 INFO    MainThread:3734076 [wandb_setup.py:_flush():76] Applying login settings: {'mode': 'offline'}
+2024-03-19 22:11:36,071 INFO    MainThread:3734076 [wandb_init.py:_log_setup():526] Logging user logs to /storage/user/hank/methods_test/NeO-360/wandb/offline-run-20240319_221135-91gqn4vu/logs/debug.log
+2024-03-19 22:11:36,074 INFO    MainThread:3734076 [wandb_init.py:_log_setup():527] Logging internal logs to /storage/user/hank/methods_test/NeO-360/wandb/offline-run-20240319_221135-91gqn4vu/logs/debug-internal.log
+2024-03-19 22:11:36,076 INFO    MainThread:3734076 [wandb_init.py:init():566] calling init triggers
+2024-03-19 22:11:36,082 INFO    MainThread:3734076 [wandb_init.py:init():574] wandb.init called with sweep_config: {}
+config: {}
+2024-03-19 22:11:36,083 INFO    MainThread:3734076 [wandb_init.py:init():616] starting backend
+2024-03-19 22:11:36,084 INFO    MainThread:3734076 [wandb_init.py:init():620] setting up manager
+2024-03-19 22:11:36,089 INFO    MainThread:3734076 [backend.py:_multiprocessing_setup():107] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2024-03-19 22:11:36,149 INFO    MainThread:3734076 [wandb_init.py:init():628] backend started and connected
+2024-03-19 22:11:36,154 INFO    MainThread:3734076 [wandb_init.py:init():720] updated telemetry
+2024-03-19 22:11:36,249 INFO    MainThread:3734076 [wandb_init.py:init():753] communicating run to backend with 90.0 second timeout
+2024-03-19 22:11:36,261 INFO    MainThread:3734076 [wandb_init.py:init():804] starting run threads in backend
+2024-03-19 22:11:52,241 INFO    MainThread:3734076 [wandb_run.py:_console_start():2233] atexit reg
+2024-03-19 22:11:52,242 INFO    MainThread:3734076 [wandb_run.py:_redirect():2088] redirect: wrap_raw
+2024-03-19 22:11:52,242 INFO    MainThread:3734076 [wandb_run.py:_redirect():2153] Wrapping output streams.
+2024-03-19 22:11:52,242 INFO    MainThread:3734076 [wandb_run.py:_redirect():2178] Redirects installed.
+2024-03-19 22:11:52,243 INFO    MainThread:3734076 [wandb_init.py:init():847] run started, returning control to user process
+2024-03-19 22:12:15,007 INFO    MainThread:3734076 [wandb_run.py:_config_callback():1342] config_cb None None {'root_dir': '/usr/stud/hank/storage/user/methods_test/NeO-360/data/PDMultiObjv6/train', 'dataset_name': 'nerds360_ae', 'save_path': 'vanilla', 'img_wh': [640, 192], 'white_back': False, 'spheric_poses': True, 'emb_dim': 2458, 'latent_dim': 256, 'N_emb_xyz': 10, 'N_emb_dir': 4, 'N_samples': 64, 'N_importance': 64, 'use_disp': False, 'perturb': 1.0, 'noise_std': 1.0, 'crop_img': False, 'use_image_encoder': False, 'latent_code_path': 'None', 'encoder_type': 'resnet', 'finetune_lpips': False, 'splits': 'None', 'eval_mode': 'None', 'do_generate': False, 'val_splits': 'None', 'cat': 'None', 'use_tcnn': False, 'model_type': 'geometry', 'train_opacity_rgb': False, 'N_max_objs': 151, 'nv': 3, 'num_nocs_ch': 256, 'N_obj_code_length': 128, 'D': 8, 'W': 256, 'N_freq_xyz': 10, 'N_freq_dir': 4, 'skips': [4], 'inst_D': 4, 'inst_W': 128, 'inst_skips': [2], 'batch_size': 100, 'chunk': 1024, 'num_epochs': 80, 'num_gpus': 1, 'run_max_steps': 100000, 'ckpt_path': 'None', 'is_optimize': 'None', 'prefix': 'None', 'prefixes_to_ignore': ['loss'], 'weight_path': 'None', 'color_loss_weight': 1.0, 'depth_loss_weight': 0.1, 'opacity_loss_weight': 10.0, 'instance_color_loss_weight': 1.0, 'instance_depth_loss_weight': 1.0, 'optimizer': 'adam', 'lr': 0.001, 'iters': 30000, 'latent_lr': 0.001, 'momentum': 0.9, 'weight_decay': 0, 'lr_scheduler': 'poly', 'lr_scheduler_latent': 'poly', 'warmup_multiplier': 1.0, 'warmup_epochs': 0, 'decay_step': [20], 'decay_gamma': 0.1, 'poly_exp': 0.99, 'exp_name': 'multi_map_tp_CONV_scene', 'render_name': 'None', 'exp_type': 'triplanar_nocs_fusion_conv_scene'}

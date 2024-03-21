@@ -218,28 +218,32 @@ def read_poses_val(pose_dir_train, img_files_train, pose_scale_factor):
 class NeRDS360_AE_custom(Dataset):
     def __init__(
         self,
-        root_dir,
+        root_dir = "",
         split="train",
+        ratio=0.5,
         img_wh= (640, 192),      ## default: (640, 480) for NeO360
         white_back=False,
-        model_type="Vanilla",
-        eval_inference=None,
-        optimize=None,
-        encoder_type="resnet",
+        model_type="kitti360",
+        # eval_inference=None,
+        # optimize=None,
+        # encoder_type="resnet",
         contract=True,
         finetune_lpips=False,
+        ray_batch_size=2048,
     ):
+        self.ratio = ratio
         self.split = split
         self.img_wh = img_wh
         self.define_transforms()
         self.white_back = white_back
         self.base_dir = root_dir
-        self.ids = np.sort([f.name for f in os.scandir(self.base_dir)])
+        # self.ids = np.sort([f.name for f in os.scandir(self.base_dir)])
         self.eval_inference = eval_inference
-        self.optimize = optimize
+        # self.optimize = optimize
         self.encoder_type = encoder_type
         self.contract = contract
         self.finetune_lpips = finetune_lpips
+        self.ray_batch_size = ray_batch_size
 
         # for multi scene training
         if self.encoder_type == "resnet":
@@ -251,20 +255,8 @@ class NeRDS360_AE_custom(Dataset):
             self.img_transform = T.Compose(
                 [T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]
             )
+        self.samples_per_epoch = 6400
 
-        if self.encoder_type == "resnet":
-            # roughly 10 epochs to see one full data i.e. 210*240*100*25
-            self.samples_per_epoch = 9600
-            # self.samples_per_epoch = 1875
-        else:
-            self.samples_per_epoch = 9600
-            # self.samples_per_epoch = 1875
-            # back to 10 epochs to see one full data due to increase sampling size i.e. 128 and 256 for coarse and fine
-            # roughly 2 epochs to see one full data i.e. 210*240*100*25
-
-        # self.samples_per_epoch = 1000
-        #
-        w, h = self.img_wh
         if self.eval_inference is not None:
             # num = 3
             num = 99
@@ -274,324 +266,67 @@ class NeRDS360_AE_custom(Dataset):
             self.image_sizes = np.array([[h, w] for i in range(1)])
 
         self.model_type = model_type
-        self.near = 3.0     ##
-        self.far = 80.0
+        self.near, self.far = 2.0, 122.0     ## default: 3.0, 80.0 for BTS
 
-    def read_data(
-        self,
-        # instance_dir,
-        # image_id,
-        out_instance_seg=False,
-        contract=True,
-        smoothing_loss=False,
-        out_src_view=False,
-        **kwargs,
-    ):
-        # base_dir_train = os.path.join(self.base_dir, instance_dir, "train")
-        # img_files_train = os.listdir(os.path.join(base_dir_train, "rgb"))
-        # img_files_train.sort()
-        # pose_dir_train = os.path.join(self.base_dir, instance_dir, "train", "pose")
+        self.width, self.height = img_wh
+        # self.H, self.W = int(self.height * self.ratio), int(self.width * self.ratio)
+        self.H, self.W = int(self.height), int(self.width)
 
-        # # This is just to get 3 encoded image, the decoded images are all circular trajectories see line 355 below
-        # base_dir_test = os.path.join(self.base_dir, instance_dir, "val")
-        # img_files_test = os.listdir(os.path.join(base_dir_train, "rgb"))
-        # img_files_test.sort()
-        # pose_dir_test = os.path.join(self.base_dir, instance_dir, "val", "pose")
 
-        # if self.split == "train":
-        #     all_c2w, _, focal, img_size, self.RTs, _ = read_poses(
-        #         # pose_dir_train, img_files_train, output_boxes=True, contract=contract
-        #         pose_dir_train, img_files_train, output_boxes=False, contract=contract
-        #     )
-        #     img_files = img_files_train[:100]
-        #     base_dir = base_dir_train
-        # elif self.split == "val":
-        #     all_c2w_train, all_c2w_val, focal, img_size, self.RTs, _ = read_poses(
-        #         # pose_dir_train, img_files_train, output_boxes=True, contract=contract
-        #         pose_dir_train, img_files_train, output_boxes=False, contract=contract
-        #     )
-        #     all_c2w = np.concatenate((all_c2w_train, all_c2w_val), axis=0)
-        #     img_files = img_files_train
-        #     base_dir = base_dir_train
-        # else:
-        #     # _, _, focal, img_size, self.RTs, poses_scale_factor = read_poses(
-        #     #     pose_dir_train, img_files_train, output_boxes=True, contract=contract
-        #     # )
-        #     # all_c2w = read_poses_val(pose_dir_test, img_files_test, poses_scale_factor)
-        #     # # img_files = img_files_test
-        #     # base_dir = base_dir_test
-        #     # ref_pose = all_c2w[50]
-        #     # all_c2w_test = []
-        #     # for i in range(40):
-        #     #     # for i in range(99):
-        #     #     all_c2w_test.append(move_camera_pose(np.copy(ref_pose), i / 40))
-        #     # all_c2w = np.array(all_c2w_test)
-        #     # img_files = img_files_test[50:]
-        #     # img_files = img_files_test[:100]
-        #     # this doesn't matter since we don't evaluate on visualization images i.e. we don't have gt available
-        #     # img_files = img_files_test[:99]
-
-        #     _, _, focal, img_size, self.RTs, poses_scale_factor = read_poses(
-        #         pose_dir_train, img_files_train, output_boxes=True, contract=contract
-        #     )
-        #     all_c2w = read_poses_val(pose_dir_test, img_files_test, poses_scale_factor)
-        #     img_files = img_files_test
-        #     base_dir = base_dir_test
+    def read_data(self, **kwargs):
         focal = kwargs["focal"]
-        w, h = self.img_wh
-        # focal *= w / img_size[0]  # modify focal length to match size self.img_wh
-
-        # c = np.array([640 / 2.0, 480 / 2.0])    ## default
-        c = np.array([w / 2.0, h / 2.0])    ## 640 192
-        # c *= w / img_size[0]
-
-        # img_name = img_files[image_id]
-
         c2w = kwargs["c2w"]
-        # c2w = all_c2w[image_id]     ## default
-
-        if out_src_view:
-            if self.split == "train":
-                src_views_num = get_nearest_pose_ids(c2w, all_c2w)
-                src_views_num = src_views_num[1:]
-            else:
-                src_views_num = get_nearest_pose_ids(c2w, all_c2w_train)
-                src_views_num = src_views_num[1:]
-
-        if smoothing_loss:
-            c2w_near = rot_from_origin(torch.FloatTensor(c2w))
-            c2w_near = c2w_near[:3, :4]
-
-        # pose = torch.FloatTensor(c2w)
-        pose = torch.FloatTensor(c2w[0])
-        c2w = torch.FloatTensor(c2w[0])[:3, :4]        ## data redundancy
-        # img = Image.open(os.path.join(base_dir, "rgb", img_name))
-        # img = img.resize((w, h), Image.LANCZOS)
-
-        # Don't need NOCS 2D for scene eval
-        # nocs_2d = Image.open(os.path.join(base_dir, "nocs_2d", img_name))
-        # nocs_2d = nocs_2d.resize((w, h), Image.LANCZOS)
-
-        # Get masks
-        # seg_mask = Image.open(
-        #     os.path.join(base_dir, "semantic_segmentation_2d", img_name)
-        # )
-        # # seg_mask = seg_mask.resize((w,h), Image.LANCZOS)
-        # seg_mask = np.array(seg_mask)
-        # seg_mask[seg_mask != 5] = 0
-        # seg_mask[seg_mask == 5] = 1
-        # seg_mask = cv2.resize(seg_mask, (w, h), interpolation=cv2.INTER_NEAREST)
-        # instance_mask = seg_mask > 0
-
-        nocs_2d = None          ##
-        instance_mask = None    ##
-
-        # if out_instance_seg:
-        #     inst_seg = Image.open(os.path.join(base_dir, "instance_masks_2d", img_name))
-        #     inst_seg = cv2.resize(
-        #         np.array(inst_seg), (w, h), interpolation=cv2.INTER_NEAREST
-        #     )
-
-        directions = get_ray_directions(h, w, focal[0])  # (h, w, 3)
+        # c = np.array([self.W / 2.0, self.H / 2.0])    ## 640 192
+        c = np.array([self.intrinsic_00[0][2], self.intrinsic_00[1][2]])
+        pose = torch.FloatTensor(c2w)
+        c2w = torch.FloatTensor(c2w)[:3, :4]        ## data redundancy
+        directions = get_ray_directions(self.H, self.W, focal[0])  # (h, w, 3)
         rays_o, view_dirs, rays_d, radii = get_rays(
             directions, c2w, output_view_dirs=True, output_radii=True
         )
 
-        if out_instance_seg:
-            if smoothing_loss:
-                rays_o_near, _, rays_d_near, _ = get_rays(
-                    directions, c2w_near, output_view_dirs=True, output_radii=True
-                )
-                rays_o = torch.cat((rays_o, rays_o_near), 0)
-                rays_d = torch.cat((rays_d, rays_d_near), 0)
-                return (
-                    rays_o,
-                    view_dirs,
-                    rays_d,
-                    img,
-                    instance_mask,
-                    inst_seg,
-                    nocs_2d,
-                    radii,
-                    pose,
-                    torch.tensor(focal, dtype=torch.float32),
-                    torch.tensor(c, dtype=torch.float32),
-                )
-            else:
-                if out_src_view:
-                    return (
-                        rays_o,
-                        view_dirs,
-                        rays_d,
-                        img,
-                        instance_mask,
-                        inst_seg,
-                        nocs_2d,
-                        radii,
-                        pose,
-                        torch.tensor(focal, dtype=torch.float32),
-                        torch.tensor(c, dtype=torch.float32),
-                        src_views_num,
-                    )
-                else:
-                    return (
-                        rays_o,
-                        view_dirs,
-                        rays_d,
-                        img,
-                        instance_mask,
-                        inst_seg,
-                        nocs_2d,
-                        radii,
-                        pose,
-                        torch.tensor(focal, dtype=torch.float32),
-                        torch.tensor(c, dtype=torch.float32),
-                    )
-        else:
-            if smoothing_loss:
-                rays_o_near, _, rays_d_near, _ = get_rays(
-                    directions, c2w_near, output_view_dirs=True, output_radii=True
-                )
-                rays_o = torch.cat((rays_o, rays_o_near), 0)
-                rays_d = torch.cat((rays_d, rays_d_near), 0)
-                return (
-                    rays_o,
-                    view_dirs,
-                    rays_d,
-                    # img,
-                    # instance_mask,
-                    # nocs_2d,
-                    radii,
-                    pose,
-                    torch.tensor(focal, dtype=torch.float32),
-                    torch.tensor(c, dtype=torch.float32),
-                )
-            else:
-                if out_src_view:
-                    return (
-                        rays_o,
-                        view_dirs,
-                        rays_d,
-                        img,
-                        instance_mask,
-                        nocs_2d,
-                        radii,
-                        pose,
-                        torch.tensor(focal, dtype=torch.float32),
-                        torch.tensor(c, dtype=torch.float32),
-                        src_views_num,
-                    )
-                else:
-                    return (
-                        rays_o,
-                        view_dirs,
-                        rays_d,
-                        # img,
-                        # instance_mask,
-                        # nocs_2d,
-                        radii,
-                        pose,
-                        torch.tensor(focal, dtype=torch.float32),
-                        torch.tensor(c, dtype=torch.float32),
-                    )
+        img = img.resize((self.W, self.H), Image.LANCZOS)
+
+        return (
+            rays_o,
+            view_dirs,
+            rays_d,
+            radii,
+            img,
+            pose,
+            torch.tensor(focal, dtype=torch.float32),
+            torch.tensor(c, dtype=torch.float32),
+        )
+
+    def get_training_pairs_4(self): ####
+        train_ids_filtered = np.setdiff1d(self.image_ids, self.val_lists)
+
+        # Find sequential numbers
+        valid_pairs = []
+        for i in range(len(train_ids_filtered) - 3):
+            if np.all(np.diff(train_ids_filtered[i : i + 4]) == 1):
+                valid_pairs.append(train_ids_filtered[i : i + 4])
+        random_pair = np.random.choice(len(valid_pairs), size=1, replace=False)[0]
+        pair = valid_pairs[random_pair]
+        return pair[:3], pair[-1]
 
     def define_transforms(self):
         self.transform = T.ToTensor()
 
-    def __len__(self):
-        if self.split == "train":
-            if self.optimize is not None:
-                return 3
-            else:
-                return self.samples_per_epoch
-            # return len(self.ids)
-        elif self.split == "val":
-            if self.eval_inference is not None:
-                return len(self.ids) * 99
-                # return 3
-            else:
-                return len(self.ids)
-        else:
-            if self.eval_inference is not None:
-                return len(self.ids) * 99
-                # return 40
-                # return 3
-            else:
-                return len(self.ids)
-
     def __getitem__(self, idx: int):
         if self.split == "train":  # use data in the buffers
-            train_idx = random.randint(0, len(self.ids) - 1)
-            instance_dir = self.ids[train_idx]
+            ray_batch_size = self.ray_batch_size
+            # train_idx = random.randint(0, len(self.ids) - 1)
+            source_idx, target_idx = self.get_training_pairs_4()
 
             imgs = list()
             poses = list()
             focals = list()
             all_c = list()
 
-            # nocs_2ds = list()
-            # masks = list()
-            # inst_seg_masks = list()
-            rays = list()
-            view_dirs = list()
-            rays_d = list()
-            rgbs = list()
-            radii = list()
-
-            NV = 8        ## default: 100
-            src_views = 3
-            if self.encoder_type == "resnet":
-                ray_batch_size = 500
-            else:
-                ray_batch_size = 500
-
-            ray_batch_size = 50     ## to reduce memory
-            # optimize from 5 source views
-
-            if self.optimize is not None:
-                num = int(self.optimize[0])
-                if num == 3:
-                    src_views_num = [0, 38, 44]
-                elif num == 5:
-                    src_views_num = [0, 38, 44, 94, 48]
-                elif num == 1:
-                    src_views_num = [0]
-
-                dest_view_num = random.sample(src_views_num, 1)[0]
-
-                # randomly select from 1 to num src views from this list
-                # a = random.randint(1, num)
-                # random.shuffle(src_views_num)
-                # src_views_num = src_views_num[:a]
-
-            else:
-                src_views_num = np.random.choice(100, src_views, replace=False)
-                views = [i for i in range(0, 100)]
-                a = list(set(views) - set(src_views_num))
-                # for training without LPIPS
-                if self.finetune_lpips:
-                    dest_view_num = random.sample(a, 1)[0]
-                else:
-                    dest_view_nums = random.sample(a, 20)
-            # for finetune_LPIPS
-            # dest_view_num = random.sample(a, 1)[0]
-
-            # dest_view_num = np.random.randint(0, 100)
-            # src_views_num = get_nearest_pose_ids(tar_pose, all_c2w_train)
-            # src_views_num = np.random.choice(100, src_views, replace=False)
-            # dest_view_nums = select_key_frames(100, src_views_num, self.rel_translations_train, self.rel_rotations_train, 0.4, 90)
-            # # dest_view_num = random.choice(dest_view_nums)
-            # views = [i for i in range(0, 100)]
-            # #dest_view_nums = random.sample(list(set(views) - set(src_views_num)), 20)
-            # a = list(set(views) - set(src_views_num))
-            # dest_view_num = random.sample(a,1)[0]
-
-            for train_image_id in range(0, NV):
-                if train_image_id not in src_views_num:
-                    continue
-                _, _, _, img, _, _, _, c2w, f, c = self.read_data(
-                    instance_dir, train_image_id
-                )
+            # source view data loading
+            for s_idx in source_idx:
+                _, _, _, _, img, c2w, f, c = self.read_data(s_idx)
                 img = Image.fromarray(np.uint8(img))
                 img = T.ToTensor()(img)
                 imgs.append(self.img_transform(img))
@@ -604,149 +339,74 @@ class NeRDS360_AE_custom(Dataset):
             focals = torch.stack(focals, 0)
             all_c = torch.stack(all_c, 0)
 
-            if self.optimize is not None or self.finetune_lpips:
-                # ======================================================\n\n\n
-                # #Load desitnation view data from one camera view
-                # ======================================================\n\n\n
-                # Load desitnation view data
-                (
-                    cam_rays,
-                    cam_view_dirs,
-                    cam_rays_d,
-                    img_gt,
-                    instance_mask,
-                    nocs_2d,
-                    camera_radii,
-                    _,
-                    _,
-                    _,
-                ) = self.read_data(instance_dir, dest_view_num)
+            # target view data loading
+            rays, viewdirs, rays_d, radii, img_gt, _, _, _ = self.read_data(target_idx)
 
-                # instance_mask = T.ToTensor()(instance_mask)
-                # nocs_2d = Image.fromarray(np.uint8(nocs_2d))
-                # nocs_2d = T.ToTensor()(nocs_2d)
+            img_gt = Image.fromarray(np.uint8(img_gt))
+            img_gt = T.ToTensor()(img_gt)
+            rgb_gt = img_gt.permute(1, 2, 0).flatten(0, 1)
 
-                H, W, _ = np.array(img_gt).shape
-                camera_radii = torch.FloatTensor(camera_radii)
-                cam_rays = torch.FloatTensor(cam_rays)
-                cam_view_dirs = torch.FloatTensor(cam_view_dirs)
-                cam_rays_d = torch.FloatTensor(cam_rays_d)
+            rays = rays.view(-1, rays.shape[-1])
+            viewdirs = viewdirs.view(-1, viewdirs.shape[-1])
+            rays_d = rays_d.view(-1, rays_d.shape[-1])
+        
+            pix_inds = torch.randint(0, self.H * self.W, (ray_batch_size,))
+            rgbs = rgbs.reshape(-1, 3)[pix_inds, ...]
+            radii = radii.reshape(-1, 1)[pix_inds]
+            rays = rays.reshape(-1, 3)[pix_inds]
+            rays_d = rays_d.reshape(-1, 3)[pix_inds]
+            view_dirs = view_dirs.reshape(-1, 3)[pix_inds]
 
-                img_gt = Image.fromarray(np.uint8(img_gt))
-                img_gt = T.ToTensor()(img_gt)
-                rgbs = img_gt.permute(1, 2, 0).flatten(0, 1)
+            sample = {}
+            sample["src_imgs"] = imgs
+            sample["src_poses"] = poses
+            sample["src_focal"] = focals
+            sample["src_c"] = all_c
+            sample["rays_o"] = rays
+            sample["rays_d"] = rays_d
+            sample["viewdirs"] = view_dirs
+            sample["target"] = rgbs
+            sample["radii"] = radii
 
-                nocs_2ds = nocs_2d.permute(1, 2, 0).flatten(0, 1)
-                masks = instance_mask.permute(1, 2, 0).flatten(0, 1)
-                radii = camera_radii.view(-1)
-                rays = cam_rays.view(-1, cam_rays.shape[-1])
-                rays_d = cam_rays_d.view(-1, cam_rays_d.shape[-1])
-                view_dirs = cam_view_dirs.view(-1, cam_view_dirs.shape[-1])
+            return sample
 
-                patch = self.finetune_lpips
-                if patch:
-                    # select 64 by 64 patch for LPIPS loss
-                    width = self.img_wh[0]
-                    height = self.img_wh[1]
-                    x = np.random.randint(0, height - 30 + 1)
-                    y = np.random.randint(0, width - 30 + 1)
-                    rgbs = rgbs.view(height, width, 3)[
-                        x : x + 30, y : y + 30, :
-                    ].reshape(-1, 3)
-                    nocs_2ds = nocs_2ds.view(height, width, 3)[
-                        x : x + 30, y : y + 30, :
-                    ].reshape(-1, 3)
-                    masks = masks.view(height, width)[x : x + 30, y : y + 30].reshape(
-                        -1, 1
-                    )
-                    radii = radii.view(height, width)[x : x + 30, y : y + 30].reshape(
-                        -1, 1
-                    )
-                    rays = rays.view(height, width, 3)[
-                        x : x + 30, y : y + 30, :
-                    ].reshape(-1, 3)
-                    rays_d = rays_d.view(height, width, 3)[
-                        x : x + 30, y : y + 30, :
-                    ].reshape(-1, 3)
-                    view_dirs = view_dirs.view(height, width, 3)[
-                        x : x + 30, y : y + 30, :
-                    ].reshape(-1, 3)
-                else:
-                    pix_inds = torch.randint(0, H * W, (ray_batch_size,))
-                    rgbs = rgbs[pix_inds, ...]
-                    nocs_2ds = nocs_2ds[pix_inds]
-                    masks = masks[pix_inds]
-                    radii = radii[pix_inds]
-                    rays = rays[pix_inds]
-                    rays_d = rays_d[pix_inds]
-                    view_dirs = view_dirs[pix_inds]
+        elif self.split == "val" or self.split == "test":
+            # create data for each image separatel
+            target_idx = self.image_ids[idx]
+            # source_idx = target_idx - 1
 
-            else:
-                # ======================================================\n\n\n
-                # #Load desitnation view data from 20 dest views
-                # ======================================================\n\n\n
-                for train_image_id in dest_view_nums:
-                    (
-                        cam_rays,
-                        cam_view_dirs,
-                        cam_rays_d,
-                        img_gt,
-                        instance_mask,
-                        nocs_2d,
-                        camera_radii,
-                        _,
-                        _,
-                        _,
-                    ) = self.read_data(
-                        instance_dir, train_image_id, contract=self.contract
-                    )
+            source_idx = [target_idx - 3, target_idx - 2, target_idx - 1]
 
-                    instance_mask = T.ToTensor()(instance_mask)
-                    nocs_2d = Image.fromarray(np.uint8(nocs_2d))
-                    nocs_2d = T.ToTensor()(nocs_2d)
-                    H, W, _ = np.array(img_gt).shape
-                    camera_radii = torch.FloatTensor(camera_radii)
-                    cam_rays = torch.FloatTensor(cam_rays)
-                    cam_view_dirs = torch.FloatTensor(cam_view_dirs)
-                    cam_rays_d = torch.FloatTensor(cam_rays_d)
+            imgs = list()
+            poses = list()
+            focals = list()
+            all_c = list()
 
-                    img_gt = Image.fromarray(np.uint8(img_gt))
-                    img_gt = T.ToTensor()(img_gt)
-                    rgb_gt = img_gt.permute(1, 2, 0).flatten(0, 1)
+            # source view data loading
+            for s_idx in source_idx:
+                _, _, _, _, img, c2w, f, c = self.read_meta(s_idx)
+                img = Image.fromarray(np.uint8(img))
+                img = T.ToTensor()(img)
+                imgs.append(self.img_transform(img))
+                poses.append(c2w)
+                focals.append(f)
+                all_c.append(c)
 
-                    nocs_2d_gt = nocs_2d.permute(1, 2, 0).flatten(0, 1)
-                    mask_gt = instance_mask.permute(1, 2, 0).flatten(0, 1)
-                    radii_gt = camera_radii.view(-1)
-                    ray = cam_rays.view(-1, cam_rays.shape[-1])
-                    ray_d = cam_rays_d.view(-1, cam_rays_d.shape[-1])
-                    viewdir = cam_view_dirs.view(-1, cam_view_dirs.shape[-1])
+            imgs = torch.stack(imgs, 0)
+            poses = torch.stack(poses, 0)
+            focals = torch.stack(focals, 0)
+            all_c = torch.stack(all_c, 0)
 
-                    nocs_2ds.append(nocs_2d_gt)
-                    masks.append(mask_gt)
-                    rays.append(ray)
-                    view_dirs.append(viewdir)
-                    rays_d.append(ray_d)
-                    rgbs.append(rgb_gt)
-                    radii.append(radii_gt)
+            # target view data loading
+            rays, viewdirs, rays_d, radii, img_gt, _, _, _ = self.read_data(target_idx)
 
-                rgbs = torch.stack(rgbs, 0)
-                masks = torch.stack(masks, 0)
-                nocs_2ds = torch.stack(nocs_2ds, 0)
-                rays = torch.stack(rays, 0)
-                rays_d = torch.stack(rays_d, 0)
-                view_dirs = torch.stack(view_dirs, 0)
-                radii = torch.stack(radii, 0)
-
-                pix_inds = torch.randint(
-                    0, len(dest_view_nums) * H * W, (ray_batch_size,)
-                )
-                rgbs = rgbs.reshape(-1, 3)[pix_inds, ...]
-                nocs_2ds = nocs_2ds.reshape(-1, 3)[pix_inds, ...]
-                masks = masks.reshape(-1, 1)[pix_inds]
-                radii = radii.reshape(-1, 1)[pix_inds]  
-                rays = rays.reshape(-1, 3)[pix_inds]
-                rays_d = rays_d.reshape(-1, 3)[pix_inds]
-                view_dirs = view_dirs.reshape(-1, 3)[pix_inds]
+            img_gt = Image.fromarray(np.uint8(img_gt))
+            img_gt = T.ToTensor()(img_gt)
+            rgb_gt = img_gt.permute(1, 2, 0).flatten(0, 1)
+            
+            rays = rays.view(-1, rays.shape[-1])
+            rays_d = rays_d.view(-1, rays_d.shape[-1])
+            view_dirs = viewdirs.view(-1, viewdirs.shape[-1])
 
             if self.model_type == "Vanilla":
                 sample = {
@@ -754,285 +414,27 @@ class NeRDS360_AE_custom(Dataset):
                     "rays": rays,
                     "rgbs": rgbs,
                 }
-            else:
+            elif self.model_type == "kitti360":
                 sample = {}
                 sample["src_imgs"] = imgs
                 sample["src_poses"] = poses
                 sample["src_focal"] = focals
                 sample["src_c"] = all_c
-                # sample["instance_mask"] = masks
                 sample["rays_o"] = rays
                 sample["rays_d"] = rays_d
                 sample["viewdirs"] = view_dirs
-                sample["target"] = rgbs
-                # sample["nocs_2d"] = nocs_2ds
+                sample["target"] = rgb_gt
                 sample["radii"] = radii
-                sample["multloss"] = torch.zeros((sample["rays_o"].shape[0], 1))
-                sample["normals"] = torch.zeros_like(sample["rays_o"])
+                sample["img_wh"] = np.array([self.W, self.H])
+            else: raise NotImplementedError(f"Model type not implemented{self.model_type}")
 
             return sample
 
-        # elif self.split == 'val': # create data for each image separately
+        else: raise NotImplementedError(f"Split not implemented{self.split}")
+
+    def __len__(self):
+        if self.split == "train":
+            return self.samples_per_epoch
         elif self.split == "val":
-            if self.eval_inference is not None:
-                instance_dir = self.ids[0]
-            else:
-                instance_dir = self.ids[idx]
-            # instance_dir = self.ids[idx]
-            imgs = list()
-            poses = list()
-            focals = list()
-            all_c = list()
-            NV = 8        ## default: 199
-            src_views = 3 ## same setting as MVBTS
-
-            if self.eval_inference is not None:
-                num = int(self.eval_inference[0])
-                if num == 3:
-                    src_views_num = [0, 38, 44]
-                    # src_views_num = [8, 91, 67]
-                elif num == 5:
-                    src_views_num = [0, 38, 44, 94, 48]
-                elif num == 1:
-                    src_views_num = [0]
-                dest_view_num = idx + NV    ## defualt : + 100
-                # dest_view_num = src_views_num[idx]
-                # dest_view_num = 135
-
-            else:
-                if self.optimize is not None:
-                    num = int(self.optimize[0])
-                    if num == 3:
-                        src_views_num = [0, 38, 44]
-                    elif num == 5:
-                        src_views_num = [0, 38, 44, 94, 48]
-                    elif num == 1:
-                        src_views_num = [0]
-
-                    dest_view_num = np.random.randint(0, NV-1) + NV   ## default: randint(0, 99) + 100
-                else:
-                    src_views_num = np.random.choice(NV, src_views, replace=False)  ## default: 100, src_views
-                    # src_views_num = [0, 38, 44]
-
-                    # src_views_num = [8, 91, 67]
-                    views = [i for i in range(0, NV-1)]
-                    a = list(set(views) - set(src_views_num))
-                    dest_view_num = random.sample(a, 1)[0] + NV
-
-            # Load desitnation view data
-            (
-                cam_rays,
-                cam_view_dirs,
-                cam_rays_d,
-                img_gt,
-                instance_mask,
-                inst_seg,
-                nocs_2d,
-                camera_radii,
-                _,
-                _,
-                _,
-            ) = self.read_data(instance_dir, dest_view_num, out_instance_seg=True)
-            if instance_mask is not None:
-                instance_mask = T.ToTensor()(instance_mask)
-            inst_seg = T.ToTensor()(inst_seg)
-            if nocs_2d is not None:
-                nocs_2d = Image.fromarray(np.uint8(nocs_2d))
-                nocs_2d = T.ToTensor()(nocs_2d)
-
-            H, W, _ = np.array(img_gt).shape
-            camera_radii = torch.FloatTensor(camera_radii)
-            cam_rays = torch.FloatTensor(cam_rays)
-            cam_view_dirs = torch.FloatTensor(cam_view_dirs)
-            cam_rays_d = torch.FloatTensor(cam_rays_d)
-
-            img_gt = Image.fromarray(np.uint8(img_gt))
-            img_gt = T.ToTensor()(img_gt)
-            rgbs = img_gt.permute(1, 2, 0).flatten(0, 1)
-            if nocs_2d is not None:
-                nocs_2ds = nocs_2d.permute(1, 2, 0).flatten(0, 1)
-            else: nocs_2ds = None
-            if instance_mask is not None:
-                masks = instance_mask.permute(1, 2, 0).flatten(0, 1)
-            else: masks = None
-            inst_seg_masks = inst_seg.permute(1, 2, 0).flatten(0, 1)
-            radii = camera_radii.view(-1)
-            rays = cam_rays.view(-1, cam_rays.shape[-1])
-            rays_d = cam_rays_d.view(-1, cam_rays_d.shape[-1])
-            view_dirs = cam_view_dirs.view(-1, cam_view_dirs.shape[-1])
-
-            for train_image_id in range(0, NV):
-                if train_image_id not in src_views_num:
-                    continue
-                _, _, _, img, _, _, _, _, c2w, f, c = self.read_data(
-                    instance_dir, train_image_id, out_instance_seg=True
-                )
-                img = Image.fromarray(np.uint8(img))
-                img = T.ToTensor()(img)
-                imgs.append(self.img_transform(img))
-                poses.append(c2w)
-                focals.append(f)
-                all_c.append(c)
-
-            imgs = torch.stack(imgs, 0)
-            poses = torch.stack(poses, 0)
-            focals = torch.stack(focals, 0)
-            all_c = torch.stack(all_c, 0)
-
-            # near_obj, far_obj, _ = sample_rays_in_bbox_list(
-            #     self.RTs, rays.numpy(), view_dirs.numpy()
-            # )
-
-            if self.model_type == "Vanilla":
-                sample = {
-                    "src_imgs": imgs,
-                    "rays": rays,
-                    "rgbs": rgbs,
-                }
-            else:
-                sample = {}
-                sample["src_imgs"] = imgs
-                sample["src_poses"] = poses
-                sample["src_focal"] = focals
-                # sample["instance_mask"] = masks
-                # sample["inst_seg_mask"] = inst_seg_masks
-                sample["src_c"] = all_c
-                sample["rays_o"] = rays
-                sample["rays_d"] = rays_d
-                sample["viewdirs"] = view_dirs
-                sample["target"] = rgbs
-                # sample["nocs_2d"] = nocs_2ds
-                sample["radii"] = radii
-                sample["multloss"] = torch.zeros((sample["rays_o"].shape[0], 1))
-                sample["normals"] = torch.zeros_like(sample["rays_o"])
-
-            return sample
-
-        else:
-            if self.eval_inference is not None:
-                instance_dir = self.ids[0]
-            else:
-                instance_dir = self.ids[idx]
-            # instance_dir = self.ids[idx]
-            imgs = list()
-            poses = list()
-            focals = list()
-            all_c = list()
-            NV = 99
-            # NV = 40
-            src_views = 3
-
-            if self.eval_inference is not None:
-                num = int(self.eval_inference[0])
-                if num == 3:
-                    src_views_num = [0, 38, 44]
-                    # src_views_num = [8, 91, 67]
-                elif num == 5:
-                    src_views_num = [0, 15, 38, 52, 70]
-                elif num == 1:
-                    src_views_num = [0]
-                dest_view_num = idx
-
-            else:
-                if self.optimize is not None:
-                    num = int(self.optimize[0])
-                    if num == 3:
-                        src_views_num = [0, 38, 44]
-                    elif num == 5:
-                        src_views_num = [0, 38, 44, 94, 48]
-                    elif num == 1:
-                        src_views_num = [0]
-
-                    dest_view_num = np.random.randint(0, 99)
-                else:
-                    src_views_num = np.random.choice(100, src_views, replace=False)
-                    # src_views_num = [0, 38, 44]
-
-                    # src_views_num = [8, 91, 67]
-                    views = [i for i in range(0, 99)]
-                    a = list(set(views) - set(src_views_num))
-                    dest_view_num = random.sample(a, 1)[0]
-
-            # Load desitnation view data
-            (
-                cam_rays,
-                cam_view_dirs,
-                cam_rays_d,
-                img_gt,
-                instance_mask,
-                inst_seg,
-                nocs_2d,
-                camera_radii,
-                _,
-                _,
-                _,
-            ) = self.read_data(instance_dir, dest_view_num, out_instance_seg=True)
-
-            instance_mask = T.ToTensor()(instance_mask)
-            inst_seg = T.ToTensor()(inst_seg)
-            nocs_2d = Image.fromarray(np.uint8(nocs_2d))
-            nocs_2d = T.ToTensor()(nocs_2d)
-
-            H, W, _ = np.array(img_gt).shape
-            camera_radii = torch.FloatTensor(camera_radii)
-            cam_rays = torch.FloatTensor(cam_rays)
-            cam_view_dirs = torch.FloatTensor(cam_view_dirs)
-            cam_rays_d = torch.FloatTensor(cam_rays_d)
-
-            img_gt = Image.fromarray(np.uint8(img_gt))
-            img_gt = T.ToTensor()(img_gt)
-            rgbs = img_gt.permute(1, 2, 0).flatten(0, 1)
-
-            nocs_2ds = nocs_2d.permute(1, 2, 0).flatten(0, 1)
-            masks = instance_mask.permute(1, 2, 0).flatten(0, 1)
-            inst_seg_masks = inst_seg.permute(1, 2, 0).flatten(0, 1)
-            radii = camera_radii.view(-1)
-            rays = cam_rays.view(-1, cam_rays.shape[-1])
-            rays_d = cam_rays_d.view(-1, cam_rays_d.shape[-1])
-            view_dirs = cam_view_dirs.view(-1, cam_view_dirs.shape[-1])
-
-            print("src_views_num", src_views_num)
-            for train_image_id in range(0, NV):
-                if train_image_id not in src_views_num:
-                    continue
-                _, _, _, img, _, _, _, _, c2w, f, c = self.read_data(
-                    instance_dir, train_image_id, out_instance_seg=True
-                )
-                img = Image.fromarray(np.uint8(img))
-                img = T.ToTensor()(img)
-                imgs.append(self.img_transform(img))
-                poses.append(c2w)
-                focals.append(f)
-                all_c.append(c)
-
-            imgs = torch.stack(imgs, 0)
-            poses = torch.stack(poses, 0)
-            focals = torch.stack(focals, 0)
-            all_c = torch.stack(all_c, 0)
-
-            if self.model_type == "Vanilla":
-                sample = {
-                    "src_imgs": imgs,
-                    "rays": rays,
-                    "rgbs": rgbs,
-                }
-            else:
-                sample = {}
-                sample["src_imgs"] = imgs
-                sample["src_poses"] = poses
-                sample["src_focal"] = focals
-                # sample["near_obj"] = near_obj
-                # sample["far_obj"] = far_obj
-                sample["instance_mask"] = masks
-                sample["inst_seg_mask"] = inst_seg_masks
-                sample["src_c"] = all_c
-                sample["rays_o"] = rays
-                sample["rays_d"] = rays_d
-                sample["viewdirs"] = view_dirs
-                sample["target"] = rgbs
-                sample["nocs_2d"] = nocs_2ds
-                sample["radii"] = radii
-                sample["multloss"] = torch.zeros((sample["rays_o"].shape[0], 1))
-                sample["normals"] = torch.zeros_like(sample["rays_o"])
-
-            return sample
+            # return len(self.val_lists)
+            return pass

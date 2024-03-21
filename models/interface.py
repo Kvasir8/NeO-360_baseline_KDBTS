@@ -61,7 +61,7 @@ class LitModel(pl.LightningModule):
         return torch.stack(psnr_list)
 
     def mse(self, image_pred, image_gt, valid_mask=None, reduction='mean'):
-        value = (image_pred-image_gt)**2
+        value = (image_pred-image_gt)**2        #### NaN val for img_pred 
         if valid_mask is not None:
             value = value[valid_mask]
         if reduction == 'mean':

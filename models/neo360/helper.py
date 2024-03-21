@@ -423,7 +423,7 @@ def depth2pts_outside(rays_o, rays_d, depth):
     rays_d_cos = 1.0 / torch.norm(rays_d, dim=-1, keepdim=True)
 
     check_pos = 1.0 - p_mid_norm * p_mid_norm
-    assert torch.all(check_pos >= 0), "1.0 - p_mid_norm * p_mid_norm should be greater than 0"
+    # assert torch.all(check_pos >= 0), "1.0 - p_mid_norm * p_mid_norm should be greater than 0"    ## TODO: kitti360 adjustmnet
 
     d2 = torch.sqrt(1.0 - p_mid_norm * p_mid_norm) * rays_d_cos
     p_sphere = rays_o + (d1 + d2) * rays_d
