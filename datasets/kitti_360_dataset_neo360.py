@@ -16,10 +16,10 @@ from torch.utils.data import Dataset
 from torchvision.transforms import ColorJitter
 
 
-# from PIL import Image
-# from torchvision import transforms as T
-# from .ray_utils import *
-# import random
+from PIL import Image
+from torchvision import transforms as T
+from .ray_utils import *
+import random
 
 # from datasets.nerds360_ae_custom import *
 
@@ -114,9 +114,13 @@ class Kitti360Dataset(Dataset):
         is_preprocessed=False,
         **kwargs,
     ):
-        super().__init__(**kwargs)
+        super().__init__()
+        # super().__init__(**kwargs)
         self.split = kwargs.get("split", "train")
         self.ray_batch_size = kwargs.get("ray_batch_size", 2048)
+        self.near, self.far = kwargs.get("z_dist", (2.0, 122.0))
+        self.white_back = kwargs.get("white_back", None)
+        self.ratio = kwargs.get("ratio", 0.5)
         self.H, self.W = target_image_size
 
         self.data_path = data_path
@@ -1020,22 +1024,22 @@ class Kitti360Dataset(Dataset):
         
         pred_idx = torch.randint(0, len(imgs), (1,))    ## random target view index
 
-        focal = (projs[0][0, 0] + projs[0][1, 1]) / 2.0
-        focal = [focal for i in range(3)]   ## for 3 source views in neo360 pipeline
-        src_c = np.array([projs[0][0, 2], projs[0][1, 2]])
+        focal = (projs[0][0, 0] + projs[0][1, 1]) * self.ratio
+        focal = np.array([focal for i in range(3)])   ## for 3 source views in neo360 pipeline
+        src_c = np.array([projs[0][0, 2], projs[0][1, 2]]) * self.ratio
         img_gt = imgs[pred_idx]
 
         kwargs = {
-            "focal": focal,   
+            "focal": focal[0],   
             "src_c": src_c,
             "c2w": poses[pred_idx],
             # "K": projs,
         }
 
         # target view data loading
-        rays, viewdirs, rays_d, radii, _, _, _ = self.read_data(kwargs)
+        rays, viewdirs, rays_d, radii, _, _, _ = self.read_data(**kwargs)
 
-        img_gt = Image.fromarray(np.uint8(img_gt))
+        img_gt = Image.fromarray(np.uint8(img_gt.squeeze(0).permute(1,2,0)))
         img_gt = T.ToTensor()(img_gt)
         rgb_gt = img_gt.permute(1, 2, 0).flatten(0, 1)
 
@@ -1043,12 +1047,13 @@ class Kitti360Dataset(Dataset):
         viewdirs = viewdirs.view(-1, viewdirs.shape[-1])
         rays_d = rays_d.view(-1, rays_d.shape[-1])
     
-        pix_inds = torch.randint(0, self.H * self.W, (self.ray_batch_size,))
-        rgbs = rgbs.reshape(-1, 3)[pix_inds, ...]
+        pix_inds = torch.randint(0, self.H * self.W, (int(self.ray_batch_size),))
+        # rgbs = rgbs.reshape(-1, 3)[pix_inds, ...]
+        rgbs = rgb_gt.reshape(-1, 3)[pix_inds, ...]
         radii = radii.reshape(-1, 1)[pix_inds]
         rays = rays.reshape(-1, 3)[pix_inds]
         rays_d = rays_d.reshape(-1, 3)[pix_inds]
-        view_dirs = view_dirs.reshape(-1, 3)[pix_inds]
+        view_dirs = viewdirs.reshape(-1, 3)[pix_inds]
 
         sample = {}
         sample["src_imgs"] = imgs
@@ -1117,7 +1122,7 @@ class Kitti360Dataset(Dataset):
         # c = np.array([self.K[0][2], self.K[1][2]])
         pose = torch.FloatTensor(c2w)
         c2w = torch.FloatTensor(c2w)[:3, :4]        ## data redundancy
-        directions = get_ray_directions(self.H, self.W, focal[0])  # (h, w, 3)
+        directions = get_ray_directions(self.H, self.W, focal)  # (h, w, 3)
         rays_o, view_dirs, rays_d, radii = get_rays(
             directions, c2w, output_view_dirs=True, output_radii=True
         )

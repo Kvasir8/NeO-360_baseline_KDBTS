@@ -18,8 +18,8 @@
                 "--exp_type", "triplanar_nocs_fusion_conv_scene", 
                 "--exp_name", "multi_map_tp_CONV_scene", 
                 "--encoder_type", "resnet", 
-                "--batch_size", "100",  
-                "--ray_batch_size", "2048",  
+                "--batch_size", "1",  
+                // "--ray_batch_size", "2048",  
                 // "--img_wh", 640 192, 
                 "--num_gpus", "1"
             ],

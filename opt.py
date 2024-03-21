@@ -349,4 +349,12 @@ def get_opts():
     # parser.add_argument('--ckpt_path', type=str, default='last.ckpt',
     #                     help='ckpt path')
 
+    ## custom params for kitti360
+    parser.add_argument(
+        "--ray_batch_size",
+        type=str,
+        default="2048",
+        help="ray_batch_size",
+    )
+
     return parser.parse_args()

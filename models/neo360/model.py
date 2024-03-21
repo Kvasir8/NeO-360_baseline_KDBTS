@@ -274,9 +274,9 @@ class NeRF_TP(nn.Module):
         )
 
         ret = []
-        # near = torch.full_like(rays["rays_o"][..., -1:], 1e-4)
-        # far = helper.intersect_sphere(rays["rays_o"], rays["rays_d"])   ### torch.Size([1024, 3]) for both rays
-        near, far = 3, 80 ## hard-coded for kitti360
+        near = torch.full_like(rays["rays_o"][..., -1:], 1e-4)
+        far = helper.intersect_sphere(rays["rays_o"], rays["rays_d"])   ### torch.Size([1024, 3]) for both rays
+        # near, far = 3, 80 ## hard-coded for kitti360
 
         for i_level in range(self.num_levels):
             if i_level == 0:
@@ -667,7 +667,7 @@ class LitNeRFTP_FUSION_CONV_SCENE(LitModel):
                 "split_path": "/storage/user/hank/BehindTheScenes/datasets/kitti_360/splits/seg/train_files.txt",
                 "target_image_size": [ 192, 640 ],
                 "return_stereo": True,
-                "frame_count": 2,
+                "frame_count": 1,
                 "fisheye_offset": [10], ## default: fisheye_offset: [10]
                 "stereo_offset": [1, 2, 3, 4, 5, 6, 7, 8], #  [1,2,3,4,5,6,7,8]  ## defaut: [1] time stamps
                 "is_preprocessed": False,
@@ -690,7 +690,7 @@ class LitNeRFTP_FUSION_CONV_SCENE(LitModel):
                 "split_path": "/storage/user/hank/BehindTheScenes/datasets/kitti_360/splits/seg/val_files.txt",   ## | val_files.txt, hardcoded from data_utils.py
                 "target_image_size": [ 192, 640 ],
                 "return_stereo": True,
-                "frame_count": 2,
+                "frame_count": 1,
                 "fisheye_offset": [10], ## default: fisheye_offset: [10]
                 "stereo_offset": [1, 2, 3, 4, 5, 6, 7, 8], #  [1,2,3,4,5,6,7,8]  ## defaut: [1] time stamps
                 "is_preprocessed": False,

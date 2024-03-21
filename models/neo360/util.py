@@ -104,7 +104,7 @@ def projection(c_xyz, focal, c, NV=None):
     uv = -c_xyz[..., :2] / (c_xyz[..., 2:] + 1e-9)  # (SB*NV, NC, 2); NC: number of grid cells 
     uv *= repeat_interleave(
                 focal.unsqueeze(1), NV if focal.shape[0] > 1 else 1
-            )
+            )       ###([3, 262144, 2]), ([1, 1, 2])
     uv += repeat_interleave(
                 c.unsqueeze(1), NV if c.shape[0] > 1 else 1
             )

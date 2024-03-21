@@ -1,0 +1,243 @@
+{
+    "os": "Linux-5.15.0-97-generic-x86_64-with-debian-bookworm-sid",
+    "python": "3.7.16",
+    "heartbeatAt": "2024-03-21T10:56:49.896148",
+    "startedAt": "2024-03-21T10:56:49.697248",
+    "docker": null,
+    "cuda": null,
+    "args": [
+        "--dataset_name",
+        "kitti360",
+        "--root_dir",
+        "/usr/stud/hank/storage/user/methods_test/NeO-360/data/PDMultiObjv6/train",
+        "--exp_type",
+        "triplanar_nocs_fusion_conv_scene",
+        "--exp_name",
+        "multi_map_tp_CONV_scene",
+        "--encoder_type",
+        "resnet",
+        "--batch_size",
+        "100",
+        "--num_gpus",
+        "1"
+    ],
+    "state": "running",
+    "program": "run.py",
+    "codePathLocal": "run.py",
+    "codePath": "run.py",
+    "git": {
+        "remote": "https://github.com/Kvasir8/NeO-360_baseline_KDBTS.git",
+        "commit": "71e5b4aac931320fd80cf266f2f8c7276d8ab8aa"
+    },
+    "email": "ge96tir@tum.de",
+    "root": "/storage/user/hank/methods_test/NeO-360",
+    "host": "node14",
+    "username": "hank",
+    "executable": "/storage/user/hank/miniconda3/envs/neo360/bin/python",
+    "cpu_count": 36,
+    "cpu_count_logical": 36,
+    "cpu_freq": {
+        "current": 3940.24925,
+        "min": 1200.0,
+        "max": 4000.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 3800.884,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3829.377,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3847.553,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3723.669,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3846.54,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3615.875,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3622.446,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3867.235,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3884.868,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3871.351,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3939.175,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        },
+        {
+            "current": 4000.0,
+            "min": 1200.0,
+            "max": 4000.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 755.2838859558105,
+            "used": 7.037178039550781
+        }
+    },
+    "gpu": "NVIDIA RTX A6000",
+    "gpu_count": 1,
+    "gpu_devices": [
+        {
+            "name": "NVIDIA RTX A6000",
+            "memory_total": 51527024640
+        }
+    ],
+    "memory": {
+        "total": 1510.567771911621
+    }
+}

@@ -488,7 +488,7 @@ class GridEncoder(nn.Module):
             device=images.device,
         )  # (1, grid_size**3, 3)
 
-        focal = focal[0].unsqueeze(-1).repeat((1, 2))   ## forcal.shape == (3,) == (SB)
+        focal = focal[0].unsqueeze(-1).repeat((1, 2))
         focal[..., 1] *= -1.0
         c = c[0].unsqueeze(0)
 
