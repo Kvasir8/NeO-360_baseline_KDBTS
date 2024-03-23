@@ -21,6 +21,9 @@ from torchvision import transforms as T
 from .ray_utils import *
 import random
 
+
+from .kitti360_utils import build_rays
+
 # from datasets.nerds360_ae_custom import *
 
 # from datasets.kitti_360.annotation import KITTI360Bbox3D
@@ -1033,7 +1036,7 @@ class Kitti360Dataset(Dataset):
             "focal": focal[0],   
             "src_c": src_c,
             "c2w": poses[pred_idx],
-            # "K": projs,
+            "projs": projs,
         }
 
         # target view data loading
@@ -1115,6 +1118,7 @@ class Kitti360Dataset(Dataset):
 
 
     def read_data(self, **kwargs):
+        K_ = torch.Tensor(kwargs["projs"][0])
         focal = kwargs["focal"]
         c2w = kwargs["c2w"]
         c = kwargs["src_c"]
@@ -1123,10 +1127,13 @@ class Kitti360Dataset(Dataset):
         pose = torch.FloatTensor(c2w)
         c2w = torch.FloatTensor(c2w)[:3, :4]        ## data redundancy
         directions = get_ray_directions(self.H, self.W, focal)  # (h, w, 3)
-        rays_o, view_dirs, rays_d, radii = get_rays(
+        # rays_o, view_dirs, rays_d, radii = get_rays(
+        #     directions, c2w, output_view_dirs=True, output_radii=True
+        # )
+        _, view_dirs, _, radii = get_rays(
             directions, c2w, output_view_dirs=True, output_radii=True
         )
-
+        rays_o, rays_d = build_rays(K_, c2w, self.H, self.W)
         # img = img.resize((self.W, self.H), Image.LANCZOS)
 
         return (

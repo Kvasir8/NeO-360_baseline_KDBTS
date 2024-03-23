@@ -276,7 +276,7 @@ class NeRF_TP(nn.Module):
         ret = []
         near = torch.full_like(rays["rays_o"][..., -1:], 1e-4)
         far = helper.intersect_sphere(rays["rays_o"], rays["rays_d"])   ### torch.Size([1024, 3]) for both rays
-        # near, far = 3, 80 ## hard-coded for kitti360
+        # near, far = 2.0, 122.0 ## invalid: hard-coded for kitti360
 
         for i_level in range(self.num_levels):
             if i_level == 0:

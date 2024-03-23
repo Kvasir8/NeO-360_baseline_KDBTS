@@ -262,13 +262,13 @@ def intersect_sphere(rays_o, rays_d):
 
     d1 = -torch.sum(rays_d * rays_o, dim=-1, keepdim=True) / torch.sum(
         rays_d**2, dim=-1, keepdim=True
-    )
-    p = rays_o + d1 * rays_d
+    )   ### with kitti360 values: 2000 ~ 4000 || GT: 0.75 ~ 0.97 | d: -0.9 ~ 0.27 | o: 0.3 ~ 0.67 <-> kitti360: 115 ~ 3803
+    p = rays_o + d1 * rays_d    
     # consider the case where the ray does not intersect the sphere
     rays_d_cos = 1.0 / torch.norm(rays_d, dim=-1, keepdim=True)
     p_norm_sq = torch.sum(p * p, dim=-1, keepdim=True)
     check_pos = 1.0 - p_norm_sq
-    assert torch.all(check_pos >= 0), "1.0 - p_norm_sq should be greater than 0"  ##
+    assert torch.all(check_pos >= 0), "1.0 - p_norm_sq should be greater than 0"  ## kitti360 adjustment
     d2 = torch.sqrt(1.0 - p_norm_sq) * rays_d_cos
     return d1 + d2
 
