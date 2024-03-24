@@ -12,6 +12,7 @@
             "args": [
                 "--dataset_name", "kitti360",
                 // "--dataset_name", "nerds360_ae", 
+                // "--dataset_name", "kitti360)AE", 
                 // "--root_dir", "/usr/stud/hank/storage/user/methods_test/NeO-360/data/PD_v6_test/test_novel_objs/SF_6thAndMission_medium0/",
                 "--root_dir", "/usr/stud/hank/storage/user/methods_test/NeO-360/data/PDMultiObjv6/train",
                 // "--root_dir", "/storage/group/dataset_mirrors/01_incoming/kitti_360/KITTI-360", 
@@ -20,8 +21,9 @@
                 "--encoder_type", "resnet", 
                 "--batch_size", "1",  
                 // "--ray_batch_size", "2048",  
-                // "--img_wh", 640 192, 
-                "--num_gpus", "1"
+                "--img_wh", "640", "192", 
+                // "--img_wh", "320", "96", 
+                "--num_gpus", "4"
             ],
             "env": {
                 "PYTHONPATH": "${workspaceFolder}../../miniconda3/envs/neo360/lib/python3.10/site-packages/"

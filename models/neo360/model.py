@@ -665,9 +665,9 @@ class LitNeRFTP_FUSION_CONV_SCENE(LitModel):
                 "data_path": "/storage/group/dataset_mirrors/01_incoming/kitti_360/KITTI-360",           # storage/group/dataset_mirrors/01_incoming/kitti_360/KITTI-360
                 "pose_path": "/storage/group/dataset_mirrors/01_incoming/kitti_360/KITTI-360/data_poses",
                 "split_path": "/storage/user/hank/BehindTheScenes/datasets/kitti_360/splits/seg/train_files.txt",
-                "target_image_size": [ 192, 640 ],
+                "target_image_size": [ 192, 640 ],    ## [ 192, 640 ]
                 "return_stereo": True,
-                "frame_count": 1,
+                "frame_count": 2,
                 "fisheye_offset": [10], ## default: fisheye_offset: [10]
                 "stereo_offset": [1, 2, 3, 4, 5, 6, 7, 8], #  [1,2,3,4,5,6,7,8]  ## defaut: [1] time stamps
                 "is_preprocessed": False,
@@ -688,9 +688,9 @@ class LitNeRFTP_FUSION_CONV_SCENE(LitModel):
                 "data_path": "/storage/group/dataset_mirrors/01_incoming/kitti_360/KITTI-360",           # storage/group/dataset_mirrors/01_incoming/kitti_360/KITTI-360
                 "pose_path": "/storage/group/dataset_mirrors/01_incoming/kitti_360/KITTI-360/data_poses",
                 "split_path": "/storage/user/hank/BehindTheScenes/datasets/kitti_360/splits/seg/val_files.txt",   ## | val_files.txt, hardcoded from data_utils.py
-                "target_image_size": [ 192, 640 ],
+                "target_image_size": [ 192, 640 ],      ## [ 192, 640 ]
                 "return_stereo": True,
-                "frame_count": 1,
+                "frame_count": 2,
                 "fisheye_offset": [10], ## default: fisheye_offset: [10]
                 "stereo_offset": [1, 2, 3, 4, 5, 6, 7, 8], #  [1,2,3,4,5,6,7,8]  ## defaut: [1] time stamps
                 "is_preprocessed": False,
@@ -972,6 +972,8 @@ class LitNeRFTP_FUSION_CONV_SCENE(LitModel):
         self.random_batch = np.random.randint(5, size=1)[0]
 
     def validation_step(self, batch, batch_idx):
+        return     ##
+    
         for k, v in batch.items():
             """
             src_imgs

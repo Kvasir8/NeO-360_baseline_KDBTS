@@ -121,9 +121,9 @@ class Kitti360Dataset(Dataset):
         # super().__init__(**kwargs)
         self.split = kwargs.get("split", "train")
         self.ray_batch_size = kwargs.get("ray_batch_size", 2048)
-        self.near, self.far = kwargs.get("z_dist", (2.0, 122.0))
+        self.near, self.far = kwargs.get("z_dist", (2.0, 122.0))    ## (2.0, 122.0) Neo360 kitti360
         self.white_back = kwargs.get("white_back", None)
-        self.ratio = kwargs.get("ratio", 0.5)
+        self.ratio = kwargs.get("ratio", 0.5)   ## default: 0.5
         self.H, self.W = target_image_size
 
         self.data_path = data_path
@@ -1025,17 +1025,21 @@ class Kitti360Dataset(Dataset):
         # NV = len(imgs)        ## default: 199
         # src_views = 3 ## same setting as MVBTS
         
-        pred_idx = torch.randint(0, len(imgs), (1,))    ## random target view index
+        # pred_idx = torch.randint(0, len(imgs), (1,)) 
+        pred_idx = 3    ## last index as hard-coded for 3 source views in neo360 pipeline
 
         focal = (projs[0][0, 0] + projs[0][1, 1]) * self.ratio
         focal = np.array([focal for i in range(3)])   ## for 3 source views in neo360 pipeline
         src_c = np.array([projs[0][0, 2], projs[0][1, 2]]) * self.ratio
         img_gt = imgs[pred_idx]
 
+        c2w = np.linalg.inv(poses[0:1]) @ poses         
+        # c2w = poses[:3, 3] - poses[0][:3, 3]      ## relative poses
+
         kwargs = {
             "focal": focal[0],   
             "src_c": src_c,
-            "c2w": poses[pred_idx],
+            "c2w": c2w[pred_idx],
             "projs": projs,
         }
 
@@ -1049,8 +1053,9 @@ class Kitti360Dataset(Dataset):
         rays = rays.view(-1, rays.shape[-1])
         viewdirs = viewdirs.view(-1, viewdirs.shape[-1])
         rays_d = rays_d.view(-1, rays_d.shape[-1])
-    
-        pix_inds = torch.randint(0, self.H * self.W, (int(self.ray_batch_size),))
+        
+        # pix_inds = torch.randint(0, self.H * self.W, (int(self.ray_batch_size),)) ## not necessary
+        pix_inds = torch.arange(0, self.H * self.W)  ## validation 
         # rgbs = rgbs.reshape(-1, 3)[pix_inds, ...]
         rgbs = rgb_gt.reshape(-1, 3)[pix_inds, ...]
         radii = radii.reshape(-1, 1)[pix_inds]

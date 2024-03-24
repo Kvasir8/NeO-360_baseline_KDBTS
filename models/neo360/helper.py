@@ -268,7 +268,7 @@ def intersect_sphere(rays_o, rays_d):
     rays_d_cos = 1.0 / torch.norm(rays_d, dim=-1, keepdim=True)
     p_norm_sq = torch.sum(p * p, dim=-1, keepdim=True)
     check_pos = 1.0 - p_norm_sq
-    assert torch.all(check_pos >= 0), "1.0 - p_norm_sq should be greater than 0"  ## kitti360 adjustment
+    # assert torch.all(check_pos >= 0), "1.0 - p_norm_sq should be greater than 0"  ## kitti360 adjustment
     d2 = torch.sqrt(1.0 - p_norm_sq) * rays_d_cos
     return d1 + d2
 
